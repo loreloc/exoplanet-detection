@@ -52,9 +52,9 @@
     \end{enumerate}
     The tuples corresponding to features of candidate exoplanets are discarded. Only confirmed and false positive ones are included in the train and the test sets in order to reduce noises and improve the learning process.
     The dataset were preprocessed applying a logarithm transformation to reduce the differences of orders of magnitude. After that we standardized the dataset.
-  \paragraph{Random forests and Hyperparameters}
-    The model used for the classification task is a random forest, an ensemble of random decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Each tree is trained on a subset of the features and samples.
-    The hyperparameters of the model are optimized and cross-validated using random search. The following hyperparameters are optimized:
+  \paragraph{Random Forests and Hyperparameters}
+    The model used for the classification task is a random forest, an ensemble of random decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Each tree of the forest is trained on a subset of the features and samples.
+    The hyperparameters of the random forest are optimized and cross-validated using random search. The following hyperparameters are optimized:
     \begin{itemize}
       \item Number of estimators (e.g. the number of trees)
       \item The minimum number of samples required to split at the leafs
@@ -166,6 +166,8 @@
     8 & Orbit Semi-Major Axis & 0.07 & 0.04 \\
     \hline
     \end{tabular}
+    \caption{Features importances in descending order.}
+    \label{table:importances}
   \end{table}
 
 \newpage
