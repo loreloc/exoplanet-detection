@@ -19,8 +19,8 @@
 
 \maketitle
 \begin{abstract}
-  This work consists of identifying exoplanets using random forest which hyperparameters are optimized.
-  The model is trained using the processed data that come from the NASA's Kepler project of discovering exoplanets (e.g. planets outside our solar system).
+  This work consists of identifying exoplanets using random forest which hyperparameters are automatically optimized.
+  The model is trained using the processed data that comes from NASA's Kepler project of discovering exoplanets (e.g. planets outside our solar system).
   The hyperparameters of the model are optimized and cross-validated with random search, a simple yet effective scalable method for hyperparameters optimization.
   The data used in this work can be found at \textbf{https://exoplanetarchive.ipac.caltech.edu}.
 \end{abstract}
@@ -126,8 +126,8 @@
     \label{table:confusion}
   \end{table}
 
-  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a similar precision to other models but a way better recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
-  In the end we present Table \ref{table:importances} that shows the importances (and their standard deviations) of the first five out eighteen features used.
+  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a similar precision to other models, such as neural networks, but a way better recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
+  In the end we present Table \ref{table:importances} that shows the importances of the first five out eighteen features used.
 \end{multicols}
 
   \begin{table}
@@ -165,12 +165,5 @@
     \caption{Features importances in descending order.}
     \label{table:importances}
   \end{table}
-
-\newpage
-\begin{thebibliography}{9}
-  \bibitem{example}
-    Loconte Lorenzo
-    \textit{This Work}, 2020.
-\end{thebibliography}
 
 \end{document}
