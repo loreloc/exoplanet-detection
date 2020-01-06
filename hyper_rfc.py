@@ -1,48 +1,39 @@
 import numpy as np
-from sklearn.model_selection import RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import RandomizedSearchCV
 
 # Hyper Random Forest Classifier
 class HyperRFC:
-    # The minimum, maximum number of estimators and its step size
+    # The number of estimators
     EstimatorsMin = 10
-    EstimatorsMax = 120
+    EstimatorsMax = 100
     EstimatorsStep = 10
 
-    # The minimum, maximum for minimum samples split and its step size
-    SampleSplitMin =  2
-    SampleSplitMax = 32
-    SampleSplitStep = 1
-
-    # The minimum and maximum max features percentage and the intervals number
+    # The maximum features percentage for each tree
     FeaturesPercMin = 0.1
     FeaturesPercMax = 1.0
     FeaturesPercNum = 10
 
-    # The split criterions
-    SplitCriterions = ('gini', 'entropy')
+    # The minimum number of samples required to split an internal node
+    SamplesToSplit = [2, 4, 8, 16, 32]
 
-    def search(self, x_train, y_train, cv=5, n_iter=10, n_jobs=None):
+    # Search for the best hyperparameters given a train set
+    def search(self, x_train, y_train, **kwargs):
         # Build the hyperparameters space
         hp_space = {
             'n_estimators': np.arange(
-                self.EstimatorsMin, self.EstimatorsMax, self.EstimatorsStep
-            ),
-            'min_samples_split': np.arange(
-                self.SampleSplitMin, self.SampleSplitMax, self.SampleSplitStep
+                self.EstimatorsMin, self.EstimatorsMax + self.EstimatorsStep,
+                self.EstimatorsStep
             ),
             'max_features': np.linspace(
                 self.FeaturesPercMin, self.FeaturesPercMax, self.FeaturesPercNum
             ),
-            'criterion': self.SplitCriterions,
+            'min_samples_split': self.SamplesToSplit
         }
 
         # Instantiate the random searcher
         model = RandomForestClassifier()
-        hp_search = RandomizedSearchCV(
-            model, hp_space, n_iter,
-            scoring='f1', cv=cv, n_jobs=n_jobs
-        )
+        hp_search = RandomizedSearchCV(model, hp_space, **kwargs)
 
         # Find the best model
         hp_search.fit(x_train, y_train)

@@ -50,16 +50,14 @@
       \item Dec [decimal degrees]
       \item Kepler-band [mag]
     \end{enumerate}
-    The tuples corresponding to features of candidate exoplanets are discarded. Only confirmed and false positive ones are included in the train and the test sets in order to reduce noises and improve the learning process.
-    The dataset were preprocessed applying a logarithm transformation to reduce the differences of orders of magnitude. After that we standardized the dataset.
+    The tuples corresponding to features of candidate exoplanets are discarded. Only confirmed and false positive ones are included in the train and the test sets in order to reduce noises and improve the learning process. The preprocess method applied to the dataset is the standard normalization.
   \paragraph{Random Forests and Hyperparameters}
     The model used for the classification task is a random forest, an ensemble of random decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Each tree of the forest is trained on a subset of the features and samples.
     The hyperparameters of the random forest are optimized and cross-validated using random search. The following hyperparameters are optimized:
     \begin{itemize}
       \item Number of estimators (e.g. the number of trees)
-      \item The minimum number of samples required to split at the leafs
+      \item The minimum number of samples required to split an internal node
       \item The percentage of features to use for each tree
-      \item The split criterion (\textit{Gini} or \textit{Entropy})
     \end{itemize}
 
 \section{Hyperparameters Tuning}
@@ -75,7 +73,7 @@
   In this work, given the restricted hyperparameters search space, we used random search as the hyperparameters algorithm. It's a simple method that consists of random sampling some points in the hyperparameters space and cross-validating them on the validation set. After some iterations we pick the best hyperparameters point corresponding to the best model.
   Even if it is a simple algorithm, it is well scalable on multiple CPUs because every point in the hyperparameters space is independent from the others.
   In this work the hyperparameters search space can be defined formally as:
-  \[\Omega=\mathbb{N}\times\mathbb{N}\times(0,1]\times\{gini, entropy\}\]
+  \[\Omega=\mathbb{N}^{*}\times\mathbb{N}^{*}\times(0,1]\]
   Table \ref{table:hyperparameters} shows the subset of the search space used in this work.
   
   \begin{table}[H]
@@ -86,11 +84,9 @@
       \hline\hline
       Estimators number & $\{10,20,...,120\}$ \\
       \hline
-      Minimum samples to split & $\{2,3,...,32\}$ \\
+      Minimum samples to split & $\{2,4,8,16,32\}$ \\
       \hline
       Features percentage & $\{0.1,0.2,...,1.0\}$ \\
-      \hline
-      Split criterion & $\{gini, entropy\}$ \\
       \hline
     \end{tabular}
     \caption{Hyperparameters space subset}
@@ -98,8 +94,8 @@
   \end{table}
 
   The optimization task consists to find a point in the hyperparameters space:
-  \[\omega=(\kappa, \mu, \phi, \chi)\in\Omega\]
-  where $\kappa$ is the number of estimators, $\mu$ is the minimum samples to split, $\phi$ is the features percentage for each tree, $\chi$ is the split criterion, such that the random forest built from these hyperparameters maximize a certain score. The choice of this score is dependent from the task. For simplicity we use the $F_{1}$ score (e.g. we want to maximize both \textit{Precision} and \textit{Recall}).
+  \[\omega=(n, k, p)\in\Omega\]
+  where $n$ is the number of estimators, $k$ is the minimum samples to split, $p$ is the features percentage for each tree, such that the random forest built from these hyperparameters maximize a certain score. The choice of this score is dependent from the task. For simplicity we use the $F_{1}$ score (e.g. we want to maximize both \textit{Precision} and \textit{Recall}).
 
 \section{Conclusion and Results}
   As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
@@ -121,10 +117,10 @@
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
       % Draw the category values
-      \coordinate[label={\textbf{402}}] (PP) at (0.5, 1.33);
-      \coordinate[label={ 59}] (NP) at (0.5, 0.33);
-      \coordinate[label={ 53}] (PN) at (1.5, 1.33);
-      \coordinate[label={\textbf{915}}] (NN) at (1.5, 0.33);
+      \coordinate[label={\textbf{404}}] (PP) at (0.5, 1.33);
+      \coordinate[label={ 57}] (NP) at (0.5, 0.33);
+      \coordinate[label={ 72}] (PN) at (1.5, 1.33);
+      \coordinate[label={\textbf{896}}] (NN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
@@ -140,30 +136,30 @@
       \hline
       Model & Settings & Precision & Recall & $F_{1}$  \\
       \hline\hline
-      k-NN & k=5, euclidean norm, uniform weights & 0.943 & 0.887 & 0.914 \\
+      k-NN & k=5, euclidean norm, uniform weights & 0.926 & 0.835 & 0.878 \\
       \hline
-      SVC & regularizer=1.0, kernel=rbf, gamma=scale & 0.946 & 0.917 & 0.931 \\
+      SVC & regularizer=1.0, rbf kernel, gamma scale & 0.929 & 0.883 & 0.905 \\
       \hline
-      2-layer NN & 100 hidden units, relu activation, adam & 0.941 & 0.928 & 0.935 \\
+      2-layer NN & 100 hidden units, relu activation, adam & 0.938 & 0.921 & 0.928 \\
       \hline
-      \textbf{RandomForest} & \textbf{auto-tuned hyperparameters} & \textbf{0.940} & \textbf{0.945} & \textbf{0.942} \\
+      \textbf{Random Forest} & \textbf{auto-tuned hyperparameters} & \textbf{0.940} & \textbf{0.926} & \textbf{0.933} \\
       \hline
     \end{tabular}
-    \caption{Precision, recall and $F_{1}$ metrics of several models for comparison.}
+    \caption{Precision, recall and $F_{1}$ metrics of several models for comparison. The hyperparameters of \textit{Random Forest} were optimized automatically. In this table it was built with the following hyperparameters: 100 estimators, 2 minimum samples to split and 5 features per tree.}
     \label{table:benchmark}
   \end{table}
 
   \begin{table}
     \centering
-    \begin{tabular}{|c c c c|}
+    \begin{tabular}{|c c c|}
     \hline
-    Feature \# & Description & Importance & $\sigma$ \\
+    Feature \# & Description & Importance \\
     \hline\hline
-    7 & Planetary Radius & 0.21 & 0.10 \\
-    5 & Planet-Star Radius Ratio & 0.11 & 0.08 \\
-    1 & Orbital Period & 0.09 & 0.05 \\
-    6 & Fitted Stellar Density & 0.08 & 0.01 \\
-    8 & Orbit Semi-Major Axis & 0.07 & 0.04 \\
+    7 & Planetary Radius & 0.15 \\
+    5 & Planet-Star Radius Ratio & 0.11 \\
+    1 & Orbital Period & 0.09 \\
+    6 & Fitted Stellar Density & 0.07 \\
+    8 & Orbit Semi-Major Axis & 0.07 \\
     \hline
     \end{tabular}
     \caption{Features importances in descending order.}

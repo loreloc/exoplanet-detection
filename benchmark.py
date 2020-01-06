@@ -1,47 +1,43 @@
-import statistics
+# Other models benchmark for comparison
+
 import numpy as np
-import pandas as pd
 import sklearn as sk
 import sklearn.metrics
 import sklearn.model_selection
 import sklearn.preprocessing
-from koi_dataset import load_koi_dataset
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
+from koi_dataset import load_koi_dataset
 
-x, y = load_koi_dataset()
-(num_samples, num_features) = x.shape
+# Set the seed
+seed = 42
+np.random.seed(seed)
 
-scaler = sk.preprocessing.StandardScaler()
-scaler.fit(x)
-x = scaler.transform(x)
+# Load the dataset
+x_train, x_test, y_train, y_test = load_koi_dataset()
+x_data = np.concatenate((x_train, x_test))
+y_data = np.concatenate((y_train, y_test))
 
-x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
-    x, y, test_size=0.20, stratify=y
-)
+scores = [ 'precision', 'recall', 'f1' ]
 
-scores = [
-    sk.metrics.precision_score,
-    sk.metrics.recall_score,
-    sk.metrics.f1_score
-]
+models = {
+    'knn': KNeighborsClassifier,
+    'svc': SVC,
+    'net': MLPClassifier
+}
 
-num_tests = 100
+cv = sk.model_selection.StratifiedKFold(5)
 
 def evaluate_model(model):
-    results = []
+    results = {}
+    estimator = model()
     for score in scores:
-        s = 0.0
-        for _ in range(num_tests):
-            instance = model()
-            instance.fit(x_train, y_train)
-            y_pred = instance.predict(x_test)
-            s += score(y_test, y_pred)
-        s /= num_tests
-        results.append(s)
+        results[score] = sk.model_selection.cross_val_score(
+            estimator, x_data, y_data, cv=cv, scoring=score
+        ).mean()
     return results
 
-print("knn " + str(evaluate_model(KNeighborsClassifier)))
-print("svc " + str(evaluate_model(SVC)))
-print("nnw " + str(evaluate_model(MLPClassifier)))
+for k in models:
+    values = evaluate_model(models[k])
+    print(k + ': ' + str(values))

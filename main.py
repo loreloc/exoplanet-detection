@@ -10,22 +10,23 @@ from hyper_rfc import HyperRFC
 import seaborn as sb
 import matplotlib.pyplot as plt
 
+# Set the seed
+seed = 42
+np.random.seed(seed)
+
 # Load the dataset
-x_data, y_data = load_koi_dataset()
-(num_samples, num_features) = x_data.shape
+x_train, x_test, y_train, y_test = load_koi_dataset()
+(num_samples, num_features) = x_train.shape
 
-# Normalize the values
-scaler = sk.preprocessing.StandardScaler()
-x_data = scaler.fit_transform(x_data)
-
-# Split the dataset in train set and test set
-x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
-    x_data, y_data, test_size=0.20, stratify=y_data
-)
+# Instantiate the cross-validator (Stratified 5-fold cross validation)
+cv = sk.model_selection.StratifiedKFold(5)
 
 # Instantiate the hyper model and search for the best model
 hyper_model = HyperRFC()
-forest = hyper_model.search(x_train, y_train, n_iter=200, n_jobs=4)
+forest = hyper_model.search(
+    x_train, y_train, n_iter=100,
+    scoring='f1', cv=cv, verbose=2
+)
 print(forest.get_params())
 
 # Evaluate the best model found
@@ -45,7 +46,6 @@ importances = forest.feature_importances_
 std_importances = np.std(
     [tree.feature_importances_ for tree in forest.estimators_], axis=0
 )
-
 indices = np.argsort(importances)[::-1]
 plt.bar(
     range(num_features), importances[indices],

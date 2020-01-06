@@ -1,9 +1,7 @@
 # This file was produced by the NASA Exoplanet Archive  http://exoplanetarchive.ipac.caltech.edu
-# Sat Dec 28 11:53:52 2019
+# Mon Jan  6 11:53:47 2020
 #
 # User preference: *
-#
-# CONSTRAINT:  order by koi_insol asc
 #
 # COLUMN kepoi_name:     KOI Name
 # COLUMN koi_disposition: Exoplanet Archive Disposition

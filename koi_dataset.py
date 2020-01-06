@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
+import sklearn as sk
+import sklearn.preprocessing
+import sklearn.model_selection
 
 # Load and preprocess the KOI dataset
-def load_koi_dataset(nrows=None):
+def load_koi_dataset(nrows=None, test_size=0.2):
     # Load the dataset
     df = pd.read_csv('nasa_koi_planets.csv', comment='#', nrows=nrows)
     # Drop useless columns (row ID and KOI name)
@@ -20,11 +23,17 @@ def load_koi_dataset(nrows=None):
     # Preprocess the disposition
     df_y = df_y.apply(lambda x: 0 if x == 'CONFIRMED' else 1)
 
-    # Apply the logarithm to all the predictors values
-    for column in df_x.columns:
-        df_x[column] = df_x[column].apply(lambda x: np.log10(1 + x))
-
     # Convert to numpy arrays
-    x = df_x.to_numpy()
-    y = df_y.to_numpy()
-    return x, y
+    x_data = df_x.to_numpy()
+    y_data = df_y.to_numpy()
+
+    # Standardize the features
+    scaler = sk.preprocessing.StandardScaler()
+    x_data = scaler.fit_transform(x_data)
+
+    # Split the dataset in train set and test set
+    x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
+        x_data, y_data, test_size=test_size, stratify=y_data
+    )
+
+    return x_train, x_test, y_train, y_test
