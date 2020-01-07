@@ -9,13 +9,13 @@ class HyperRFC:
     EstimatorsMax = 100
     EstimatorsStep = 10
 
+    # The minimum number of samples required to split an internal node
+    SamplesToSplit = [2, 4, 8, 16, 32]
+
     # The maximum features percentage for each tree
     FeaturesPercMin = 0.1
     FeaturesPercMax = 1.0
     FeaturesPercNum = 10
-
-    # The minimum number of samples required to split an internal node
-    SamplesToSplit = [2, 4, 8, 16, 32]
 
     # Search for the best hyperparameters given a train set
     def search(self, x_train, y_train, **kwargs):
@@ -25,10 +25,10 @@ class HyperRFC:
                 self.EstimatorsMin, self.EstimatorsMax + self.EstimatorsStep,
                 self.EstimatorsStep
             ),
+            'min_samples_split': self.SamplesToSplit,
             'max_features': np.linspace(
                 self.FeaturesPercMin, self.FeaturesPercMax, self.FeaturesPercNum
-            ),
-            'min_samples_split': self.SamplesToSplit
+            )
         }
 
         # Instantiate the random searcher

@@ -10,7 +10,6 @@
 \usepackage[margin=2cm]{geometry}
 
 \setlength{\columnsep}{5mm}
-\graphicspath{{graphs/}}
 
 \title{Exoplanets detection using auto-tuned random forest}
 \author{Lorenzo Loconte}
@@ -117,16 +116,16 @@
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
       % Draw the category values
-      \coordinate[label={\textbf{404}}] (PP) at (0.5, 1.33);
-      \coordinate[label={ 57}] (NP) at (0.5, 0.33);
-      \coordinate[label={ 72}] (PN) at (1.5, 1.33);
-      \coordinate[label={\textbf{896}}] (NN) at (1.5, 0.33);
+      \coordinate[label={\textbf{408}}] (PP) at (0.5, 1.33);
+      \coordinate[label={ 53}] (NP) at (0.5, 0.33);
+      \coordinate[label={ 71}] (PN) at (1.5, 1.33);
+      \coordinate[label={\textbf{897}}] (NN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
   \end{table}
 
-  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a similar precision to other models, such as neural networks, but a way better recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
+  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better precision and recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
   In the end we present Table \ref{table:importances} that shows the importances of the first five out eighteen features used.
 \end{multicols}
 
@@ -142,7 +141,7 @@
       \hline
       2-layer NN & 100 hidden units, relu activation, adam & 0.938 & 0.921 & 0.928 \\
       \hline
-      \textbf{Random Forest} & \textbf{auto-tuned hyperparameters} & \textbf{0.940} & \textbf{0.926} & \textbf{0.933} \\
+      \textbf{Random Forest} & \textbf{auto-tuned hyperparameters} & \textbf{0.944} & \textbf{0.927} & \textbf{0.935} \\
       \hline
     \end{tabular}
     \caption{Precision, recall and $F_{1}$ metrics of several models for comparison. The hyperparameters of \textit{Random Forest} were optimized automatically. In this table it was built with the following hyperparameters: 100 estimators, 2 minimum samples to split and 5 features per tree.}
@@ -155,11 +154,11 @@
     \hline
     Feature \# & Description & Importance \\
     \hline\hline
-    7 & Planetary Radius & 0.15 \\
-    5 & Planet-Star Radius Ratio & 0.11 \\
-    1 & Orbital Period & 0.09 \\
-    6 & Fitted Stellar Density & 0.07 \\
-    8 & Orbit Semi-Major Axis & 0.07 \\
+    7 & Planetary Radius & 0.159 \\
+    5 & Planet-Star Radius Ratio & 0.113 \\
+    1 & Orbital Period & 0.079 \\
+    6 & Fitted Stellar Density & 0.069 \\
+    8 & Orbit Semi-Major Axis & 0.068 \\
     \hline
     \end{tabular}
     \caption{Features importances in descending order.}

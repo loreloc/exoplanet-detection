@@ -22,19 +22,18 @@ y_data = np.concatenate((y_train, y_test))
 scores = [ 'precision', 'recall', 'f1' ]
 
 models = {
-    'knn': KNeighborsClassifier,
-    'svc': SVC,
-    'net': MLPClassifier
+    'knn': KNeighborsClassifier(),
+    'svc': SVC(),
+    'net': MLPClassifier()
 }
 
 cv = sk.model_selection.StratifiedKFold(5)
 
 def evaluate_model(model):
     results = {}
-    estimator = model()
     for score in scores:
         results[score] = sk.model_selection.cross_val_score(
-            estimator, x_data, y_data, cv=cv, scoring=score
+            model, x_data, y_data, cv=cv, scoring=score, verbose=1
         ).mean()
     return results
 
