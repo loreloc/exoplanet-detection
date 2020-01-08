@@ -24,7 +24,7 @@ cv = sk.model_selection.StratifiedKFold(5)
 # Instantiate the hyper model and search for the best model
 hyper_model = HyperRFC()
 forest = hyper_model.search(
-    x_train, y_train, n_iter=250,
+    x_train, y_train, n_iter=100,
     scoring='f1', cv=cv, verbose=1
 )
 print(forest.get_params())

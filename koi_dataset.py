@@ -11,8 +11,8 @@ def load_koi_dataset(nrows=None, test_size=0.2):
     # Drop useless columns (row ID and KOI name)
     df = df.drop(['loc_rowid', 'kepoi_name'], axis=1)
 
-    # Replace NaN with the average of each column
-    df = df.fillna(df.mean())
+    # Replace rows having null values
+    df = df.dropna(axis=0)
     # Remove rows having KOI disposition uncertain (e.g. CANDIDATE)
     candidateIndexes = df[df.koi_disposition == 'CANDIDATE'].index
     df = df.drop(candidateIndexes, axis=0)

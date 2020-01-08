@@ -135,16 +135,16 @@
       \hline
       Model & Settings & Precision & Recall & $F_{1}$  \\
       \hline\hline
-      k-NN & k=5, euclidean norm, uniform weights & 0.926 & 0.835 & 0.878 \\
+      k-NN & k=5, euclidean norm, uniform weights & 0.922 & 0.829 & 0.873 \\
       \hline
-      SVC & regularizer=1.0, rbf kernel, gamma scale & 0.929 & 0.883 & 0.905 \\
+      SVC & regularizer=1.0, rbf kernel, gamma scale & 0.925 & 0.875 & 0.899 \\
       \hline
-      2-layer NN & 100 hidden units, relu activation, adam & 0.938 & 0.921 & 0.928 \\
+      2-layer NN & 100 hidden units, relu activation, adam & 0.930 & 0.917 & 0.926 \\
       \hline
-      \textbf{Random Forest} & \textbf{auto-tuned hyperparameters} & \textbf{0.944} & \textbf{0.927} & \textbf{0.935} \\
+      \textbf{Random Forest} & \textbf{auto-tuned hyperparameters} & \textbf{0.943} & \textbf{0.939} & \textbf{0.941} \\
       \hline
     \end{tabular}
-    \caption{Precision, recall and $F_{1}$ metrics of several models for comparison. The hyperparameters of \textit{Random Forest} were optimized automatically. In this table it was built with the following hyperparameters: 100 estimators, 2 minimum samples to split and 5 features per tree.}
+    \caption{Precision, recall and $F_{1}$ metrics of several models for comparison. The hyperparameters of \textit{Random Forest} were optimized automatically. In this table it was built with the following hyperparameters: 90 estimators, 4 minimum samples to split an internal node and 5 features per tree.}
     \label{table:benchmark}
   \end{table}
 
@@ -154,11 +154,11 @@
     \hline
     Feature \# & Description & Importance \\
     \hline\hline
-    7 & Planetary Radius & 0.159 \\
-    5 & Planet-Star Radius Ratio & 0.113 \\
-    1 & Orbital Period & 0.079 \\
-    6 & Fitted Stellar Density & 0.069 \\
-    8 & Orbit Semi-Major Axis & 0.068 \\
+    7 & Planetary Radius & 0.137 \\
+    5 & Planet-Star Radius Ratio & 0.119 \\
+    8 & Orbit Semi-Major Axis & 0.083 \\
+    1 & Orbital Period & 0.069 \\
+    6 & Fitted Stellar Density & 0.066 \\
     \hline
     \end{tabular}
     \caption{Features importances in descending order.}
