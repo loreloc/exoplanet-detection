@@ -1,4 +1,4 @@
-\documentclass[12pt, a4paper]{article}
+\documentclass[11pt, a4paper]{article}
 
 \usepackage{tikz}
 \usepackage{graphicx}
@@ -8,7 +8,7 @@
 \usepackage[english]{babel}
 
 \date{}
-\title{Exoplanets detection using auto-tuned random forest}
+\title{Exoplanets detection using random forest}
 \author{Lorenzo Loconte}
 
 \begin{document}
@@ -83,7 +83,7 @@
   As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better precision and recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
   In the end we present Table \ref{table:importances} that shows the importances of the first five out eighteen features used.
   
-  \begin{table}[b]
+  \begin{table}
     \centering
     \begin{tikzpicture}[scale=2]
       % Draw the box
