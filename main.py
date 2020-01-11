@@ -1,76 +1,62 @@
 import numpy as np
-import pandas as pd
-import sklearn as sk
-import sklearn.metrics
-import sklearn.preprocessing
-import sklearn.model_selection
-from koi_dataset import load_koi_dataset
-from hyper_rfc import HyperRFC
+import hpbandster.core.nameserver as hpns
+import hpbandster.core.result as hpres
+from hpbandster.optimizers import HyperBand
 
-import seaborn as sb
-import matplotlib.pyplot as plt
+from rfc_worker import RFCWorker
+from metrics import show_metrics
+from koi_dataset import load_koi_dataset
+
+# Set the LOCALHOST, PROJECT_NAME constants
+LOCALHOST = '127.0.0.1'
+PROJECT_NAME = 'exoplanet-detection'
 
 # Set the seed
 seed = 42
 np.random.seed(seed)
 
+# Set the parameters for hyperparameters optimization
+min_budget = 16
+max_budget = 144
+n_iterations = 64
+n_workers = 4
+
 # Load the dataset
 x_train, x_test, y_train, y_test = load_koi_dataset()
-(num_samples, num_features) = x_train.shape
 
-# Instantiate the cross-validator (Stratified 5-fold cross validation)
-cv = sk.model_selection.StratifiedKFold(5)
+# Start a nameserver for hyperparameters optimization
+nameserver = hpns.NameServer(run_id=PROJECT_NAME, host=LOCALHOST, port=None)
+nameserver.start()
 
-# Instantiate the hyper model and search for the best model
-hyper_model = HyperRFC()
-forest = hyper_model.search(
-    x_train, y_train, n_iter=100,
-    scoring='f1', cv=cv, verbose=1
+# Start the workers
+workers = []
+for i in range(n_workers):
+	w = RFCWorker(
+		x_train, y_train, nameserver=LOCALHOST, run_id=PROJECT_NAME, id=i
+	)
+	w.run(background=True)
+	workers.append(w)
+
+# Run an HyperBand optimizer
+hb = HyperBand(
+	configspace=RFCWorker.get_configspace(),
+	run_id=PROJECT_NAME, min_budget=min_budget, max_budget=max_budget
 )
-print(forest.get_params())
+result = hb.run(n_iterations=n_iterations, min_n_workers=n_workers)
 
-# Evaluate the best model found
-y_pred = forest.predict(x_test)
-cm = sk.metrics.confusion_matrix(y_test, y_pred)
-precision = sk.metrics.precision_score(y_test, y_pred)
-recall = sk.metrics.recall_score(y_test, y_pred)
-f1 = sk.metrics.f1_score(y_test, y_pred)
-print("Precision: " + str(precision))
-print("Recall: " + str(recall))
-print("F1: " + str(f1))
+# Shutdown the optimizer and the nameserver
+hb.shutdown(shutdown_workers=True)
+nameserver.shutdown()
 
-# Plot the features importances
-plt.subplot(211)
-plt.title('Features Importances')
-importances = forest.feature_importances_
-std_importances = np.std(
-    [tree.feature_importances_ for tree in forest.estimators_], axis=0
-)
-indices = np.argsort(importances)[::-1]
-plt.bar(
-    range(num_features), importances[indices],
-    color='lightblue', yerr=std_importances[indices], align='center'
-)
-plt.xticks(range(num_features), indices)
-plt.xlim([-1, num_features])
-plt.xlabel('Feature')
-plt.ylabel('Importance')
+# Get the best model configuration found
+id2config = result.get_id2config_mapping()
+incumbent = result.get_incumbent_id()
+config = id2config[incumbent]['config']
+print(config)
 
-# Plot the confusion matrix
-plt.subplot(212)
-plt.title('Confusion Matrix')
-df_cm = pd.DataFrame(
-    cm, index=['Positive', 'Negative'], columns=['Positive', 'Negative']
-)
-ax = sb.heatmap(
-    df_cm, annot=True,
-    linewidths=2, fmt='d', cmap="Blues", cbar=False, square=True
-)
-ax.xaxis.set_label_position('top')
-ax.xaxis.set_ticks_position('top')
-plt.ylabel('Predicted')
-plt.xlabel('Actual')
+# Build and train the best model
+rfc = RFCWorker.build(config, max_budget)
+rfc.fit(x_train, y_train)
 
-# Show the graphs
-plt.tight_layout()
-plt.show()
+# Print some evaluation metrics
+show_metrics(rfc, x_test, y_test)

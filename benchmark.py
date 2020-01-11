@@ -8,6 +8,7 @@ import sklearn.preprocessing
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
 from koi_dataset import load_koi_dataset
 
 # Set the seed
@@ -24,7 +25,8 @@ scores = [ 'precision', 'recall', 'f1' ]
 models = {
     'knn': KNeighborsClassifier(),
     'svc': SVC(),
-    'net': MLPClassifier()
+    'net': MLPClassifier(),
+    'rfc': RandomForestClassifier()
 }
 
 cv = sk.model_selection.StratifiedKFold(5)
