@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{multicol}
 \usepackage{appendix}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
@@ -58,10 +59,10 @@
   
   As we said before we refer to budget as the computational cost of cross-validating a certain model. For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees. We must know that the computational cost of cross-validating a model is directly proportional to the budget.
 
-  Given a budget $B$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of $B$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a large portion of $B$ and iterate in this way until we use the complete budget $B$. The fraction of the budget to use for each iteration grows geometrically. So, the parameters $B$ and $\eta$ are chosen in such way that we obtain a single model at the end of the iterations. Furthermore, 
+  Given a budget $B$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of $B$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a large portion of $B$ and iterate in this way until we use the complete budget $B$. The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$. So, the parameters $B$ and $\eta$ are chosen in such way that we obtain $\eta$ models at the end of the iterations.
   Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others.
 
-  In our case the model $L$ is a random forest. As said before, the budget is the maximum number of trees that the final random forest will have. The choice of the score $S$ is dependent from the target. For simplicity we use the $F_{1}$ score (i.e. we want to maximize both \textit{Precision} and \textit{Recall}). In this work the hyperparameters search space can be defined formally as:
+  In our case the model $L$ is a random forest. As said before, the budget is the maximum number of trees that the final random forest will have. The choice of the score $S$ is dependent from the target task. For simplicity we use the $F_{1}$ score (i.e. we want to maximize both \textit{Precision} and \textit{Recall}). In this work the hyperparameters search space can be defined formally as:
   \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split Criterion}} \times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
   \[\times \overbrace{\mathbb{N}^{*}}^{\text{Max depth}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples to split}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples at leaf}}\]
   For obvious reasons only a subset of this space can be explored. Table \ref{table:hyperparameters} shows the subset of the search space used in this work.
@@ -74,7 +75,7 @@
       \hline\hline
       Split Criterions & $\{gini, entropy\}$ \\
       \hline
-      Features percentage & $(0, 1]$ \\
+      Features fraction & $(0, 1]$ \\
       \hline
       Maximum Depth & $\{8,9,...,32\}$ \\
       \hline
@@ -92,8 +93,8 @@
   where $c$ is the split criterion, $h$ is the maximum depth, $k$ is the minimum number of samples to split, $t$ is the minimum number of samples at a leaf, $p$ is the features percentage for each tree.
 
 \section{Conclusion and Results}
-  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better precision and recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
-
+  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall}. We can choose any score function for hyperparameters optimization. For example we can decide to maximize only one between \textit{Precision} and \textit{Recall} scores. Furthermore, it's possible to use other metrics like \textit{Average Precision}.
+  
   As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
 
   In the end we present Table \ref{table:importances} that shows the importances of the first five out eighteen features used.
@@ -112,16 +113,16 @@
       \hline
       Random Forest & 0.938 & 0.932 & 0.938 \\
       \hline
-      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.944} & \textbf{0.941} & \textbf{0.943} \\
+      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.949} & \textbf{0.937} & \textbf{0.943} \\
       \hline
     \end{tabular}
-    \caption{Precision, recall and $F_{1}$ metrics of several models for comparison. The hyperparameters were optimized automatically. In this table it was built with the following hyperparameters found: $\omega = (entropy, 32, 7, 2, 0.5)$}
+    \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} we used $B=144$ and $\eta=3$.}
     \label{table:benchmark}
   \end{table}
   
-  \begin{table}[h]
+  \begin{table}[b]
     \centering
-    \begin{tikzpicture}[scale=1.5]
+    \begin{tikzpicture}[scale=1.67]
       % Draw the box
       \draw[thick] (0, 0) -- (2, 0);
       \draw[thick] (0, 0) -- (0, 2);
@@ -137,10 +138,10 @@
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
       % Draw the category values
-      \coordinate[label={\textbf{409}}] (PP) at (0.5, 1.33);
-      \coordinate[label={ 54}] (NP) at (0.5, 0.33);
-      \coordinate[label={ 51}] (PN) at (1.5, 1.33);
-      \coordinate[label={\textbf{863}}] (NN) at (1.5, 0.33);
+      \coordinate[label={\textbf{414}}] (PP) at (0.5, 1.33);
+      \coordinate[label={ 58}] (NP) at (0.5, 0.33);
+      \coordinate[label={ 46}] (PN) at (1.5, 1.33);
+      \coordinate[label={\textbf{859}}] (NN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
@@ -152,50 +153,54 @@
     \hline
     Feature \# & Description & Importance \\
     \hline\hline
-    7 & Planetary Radius & 0.196 \\
-    5 & Planet-Star Radius Ratio & 0.118 \\
-    6 & Fitted Stellar Density & 0.078 \\
-    1 & Orbital Period & 0.075 \\
-    8 & Orbit Semi-Major Axis & 0.071 \\
+    7 & Planetary Radius & 0.220 \\
+    5 & Planet-Star Radius Ratio & 0.107 \\
+    1 & Orbital Period & 0.093 \\
+    6 & Fitted Stellar Density & 0.089 \\
+    8 & Orbit Semi-Major Axis & 0.065 \\
     \hline
     \end{tabular}
     \caption{Features importances in descending order.}
     \label{table:importances}
   \end{table}
 
-\begin{appendix}
-  \section{Split criterions}
-    \label{appendix:splitcriterions}
-    \subsection{Gini impurity}
-      Citing \texttt{wikipedia.org}, Gini impurity is a measure of how often a randomly chosen element from the set would be incorrectly labeled if it was randomly labeled according to the distribution of labels in the subset. To compute Gini impurity for a set of items with $J$ classes, suppose $i\in\{1,2,...,J\}$, and let $p_{i}$ be the faction of items labeled with class $i$ in the set.
-      \[{I} _{G}(p)=\sum _{i=1}^{J}p_{i}\sum _{k\neq i}p_{k}=\sum _{i=1}^{J}p_{i}(1-p_{i})=\sum _{i=1}^{J}p_{i}-\sum _{i=1}^{J}{p_{i}}^{2}=1-\sum _{i=1}^{J}{p_{i}}^{2}\]
-    \subsection{Information gain}
-      Information gain is based on the concept of entropy and information content from information theory. For each node of the tree, the information value represents the expected amount of information that would be needed to specify whether a new instance should be classified yes or no, given the example reached that node. Given $T$ the set of training examples, suppose $i\in\{1,2,...,J\}$, where $J$ is the number of classes, and let $p_{i}$ be the faction of items labeled with class $i$ in the training set.
-      \[IG(T, a)=\mathrm{H}(T)-\mathrm{H}(T|a)=-\sum _{i=1}^{J}p_{i}\log _{2}{p_{i}}-\sum _{a}{p(a)\sum _{i=1}^{J}-p(i|a)\log _{2}{p(i|a)}}\]
+\vspace*{1.25cm}
+\appendix
+\appendixpage
+\section{Decision tree split criterions}
+  \label{appendix:splitcriterions}
+  \subsection{Gini impurity}
+    Citing \texttt{wikipedia.org}, Gini impurity is a measure of how often a randomly chosen element from the set would be incorrectly labeled if it was randomly labeled according to the distribution of labels in the subset. To compute Gini impurity for a set of items with $J$ classes, suppose $i\in\{1,2,...,J\}$, and let $p_{i}$ be the faction of items labeled with class $i$ in the set.
+    \[{I} _{G}(p)=\sum _{i=1}^{J}p_{i}\sum _{k\neq i}p_{k}=\sum _{i=1}^{J}p_{i}(1-p_{i})=\sum _{i=1}^{J}p_{i}-\sum _{i=1}^{J}{p_{i}}^{2}=1-\sum _{i=1}^{J}{p_{i}}^{2}\]
+  \subsection{Information gain}
+    Information gain is based on the concept of entropy and information content from information theory. For each node of the tree, the information value represents the expected amount of information that would be needed to specify whether a new instance should be classified yes or no, given the example reached that node. Given $T$ the set of training examples, suppose $i\in\{1,2,...,J\}$, where $J$ is the number of classes, and let $p_{i}$ be the faction of items labeled with class $i$ in the training set.
+    \[IG(T, a)=\mathrm{H}(T)-\mathrm{H}(T|a)=-\sum _{i=1}^{J}p_{i}\log _{2}{p_{i}}-\sum _{a}{p(a)\sum _{i=1}^{J}-p(i|a)\log _{2}{p(i|a)}}\]
 
-  \section{Exoplanet Features}
+\section{Exoplanet Features}
+  \label{appendix:features}
+  \setlength{\columnsep}{0mm}
+  \begin{multicols}{2}
     \begin{enumerate}
-      \item Orbital Period [days]
+      \item Orbital Period [$days$]
       \item Impact Parameter
-      \item Transit Duration [hrs]
-      \item Transit Depth [ppm]
+      \item Transit Duration [$hrs$]
+      \item Transit Depth [$ppm$]
       \item Planet-Star Radius Ratio
-      \item Fitted Stellar Density [g/cm**3]
-      \item Planetary Radius [Earth radii]
-      \item Orbit Semi-Major Axis [AU]
-      \item Inclination [deg]
-      \item Equilibrium Temperature [K]
-      \item Insolation Flux [Earth flux]
-      \item Stellar Effective Temperature [K]
-      \item Stellar Surface Gravity [log10(cm/s**2)]
-      \item Stellar Radius [Solar radii]
-      \item Stellar Mass [Solar mass]
-      \item RA [decimal degrees]
-      \item Dec [decimal degrees]
-      \item Kepler-band [mag]
+      \item Fitted Stellar Density [$g/cm^{3}$]
+      \item Planetary Radius [$Earth\:radii$]
+      \item Orbit Semi-Major Axis [$AU$]
+      \item Inclination [$deg$]
+      \item Equilibrium Temperature [$K$]
+      \item Insolation Flux [$Earth\:flux$]
+      \item Stellar Effective Temperature [$K$]
+      \item Stellar Surface Gravity [$\log_{10}(cm/s^{2})$]
+      \item Stellar Radius [$Solar\:radii$]
+      \item Stellar Mass [$Solar\:mass$]
+      \item RA [$decimal\:degrees$]
+      \item Dec [$decimal\:degrees$]
+      \item Kepler-band [$mag$]
     \end{enumerate}
-    \label{appendix:features}
-\end{appendix}
+  \end{multicols}
 
 \bibliography{bibliography.bib}
 \bibliographystyle{unsrt}

@@ -33,10 +33,10 @@ class RFCWorker(Worker):
 		return RandomForestClassifier(
 			n_estimators=int(budget),
 			criterion=config['criterion'],
+			max_features=config['max_features'],
 			max_depth=config['max_depth'],
 			min_samples_split=config['min_samples_split'],
-			min_samples_leaf=config['min_samples_leaf'],
-			max_features=config['max_features']
+			min_samples_leaf=config['min_samples_leaf']
 		)
 
 	# Get the random forest hyperparameters configuration space
@@ -47,6 +47,11 @@ class RFCWorker(Worker):
 		# The split criterion
 		criterion = CSH.CategoricalHyperparameter(
 			name='criterion', choices=['gini', 'entropy']
+		)
+
+		# The maximum percentage of features to use for each tree
+		max_features = CSH.UniformFloatHyperparameter(
+			name='max_features', lower=0.0, upper=1.0
 		)
 
 		# The maximum depth
@@ -64,18 +69,13 @@ class RFCWorker(Worker):
 			name='min_samples_leaf', lower=1, upper=10
 		)
 
-		# The maximum percentage of features to use for each tree
-		max_features = CSH.UniformFloatHyperparameter(
-			name='max_features', lower=0.0, upper=1.0
-		)
-
 		# Add the hyperparameters to the configuration space
 		cs.add_hyperparameters([
 			criterion,
+			max_features,
 			max_depth,
 			min_samples_split,
-			min_samples_leaf,
-			max_features, 
+			min_samples_leaf
 		])
 
 		return cs
