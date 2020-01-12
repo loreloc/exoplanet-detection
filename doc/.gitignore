@@ -5,3 +5,6 @@
 *.log
 *.gz
 *.tex~
+*.bbl
+*.bbl~
+*.blg

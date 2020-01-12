@@ -2,6 +2,7 @@
 
 \usepackage{tikz}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{appendix}
 \usepackage[utf8]{inputenc}
@@ -32,28 +33,38 @@
     The model used for the classification task is a random forest, an ensemble of random decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Random decision forests correct the habit of decision trees of overfitting. Each tree of the forest is trained on a subset of the features and samples. The hyperparameters of the random forest are optimized and cross-validated using approaches that come from the \texttt{AutoML} research. The following hyperparameters are optimized:
     \begin{itemize}
       \item The split criterion (Gini impurity or information gain, see Appendix \ref{appendix:splitcriterions} for details)
+      \item The percentage of features to use for each tree
       \item The maximum depth of each tree
       \item The minimum number of samples required to split an internal node
       \item The minimum number of samples to be at a leaf node
-      \item The percentage of features to use for each tree
     \end{itemize}
-  As the next section will expose, the number of trees in the random forest is not considered an hyperparameter because it represents the budget of the hyperparameters optimization algorithm chosen. In this work we refer with budget as the computational cost of training and cross-validating a certain model.
+  As the next section will expose, the number of trees in the random forest is not considered an hyperparameter because it represents the budget of the hyperparameters optimization algorithm chosen. In this work we refer with budget as the computational cost of cross-validating a certain model.
 
 \section{Hyperparameters Tuning}
-  The hyperparameters optimization task consists to find the hyperparameters for a model that maximize a certain score. In this work we refer to hyperparameters as the ones that cannot be trained (e.g. the ones described in the previous section).
+  In this section it will be shown a formalization of the hyperparameters optimization task as a search problem. In this work we refer to hyperparameters as the ones that cannot be trained (e.g. the ones described in the previous section). After that we briefly introduce the hyperparameters optimizer used in this work, \texttt{Hyperband}, as described in \cite{hyperband}.
+
+  Given a training set $T$, a model $L$ and its hyperparameters search space $\Omega$, the hyperparameters optimization task consists to find a set of hyperparameters $\omega \in \Omega$ such that the resulting model $L(\omega)$ maximizes a certain score $S$ using cross-validation on $T$.
+
   There are a lot of different techniques for hyperaparameters optimization, some of them are the following:
   \begin{itemize}
     \item Random Search
     \item Grid Search
     \item Hyperband
     \item Bayesian Optimization
-    \item Hybrid Approaches (like \texttt{BOHB})
+    \item Hybrid Approaches (like \texttt{BOHB} \cite{bohb})
   \end{itemize}
-  In this work, given the restricted hyperparameters search space, we used \textit{Hyperband} as the hyperparameters optimization algorithm. It's a simple method that consists of random sampling some points in the hyperparameters space and cross-validating them on the validation set. After that we extract a portion of the best hyperparameters and build more complex random forests. After some iterations we pick the best hyperparameters point corresponding to the best model.
+
+  The simplest algorithm is \texttt{Random Search}. It works well if the hyperparameters search space is not too big. \texttt{Random Search} is expensive because each evaluation of the score function is done on models completely built from scratch. So, each evaluation of the score function on some randomly selected hyperparameters will use the same amount of resources, even if some hyperparameters of the search space obtain a very low score. The idea behind \texttt{Hyperband} is that it's better to save up resources on these hyperparamters configurations that doesn't obtain a sufficiently good score by gradually building more complex models over time.
+  
+  As we said before we refer to budget as the computational cost of cross-validating a certain model. For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees. We must know that the computational cost of cross-validating a model is directly proportional to the budget.
+
+  Given a budget $B$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of $B$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a large portion of $B$ and iterate in this way until we use the complete budget $B$. The fraction of the budget to use for each iteration grows geometrically. So, the parameters $B$ and $\eta$ are chosen in such way that we obtain a single model at the end of the iterations. Furthermore, 
   Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others.
-  In this work the hyperparameters search space can be defined formally as:
-  \[\Omega = \{gini, entropy\} \times \mathbb{N}^{3} \times (0, 1]\]
-  Table \ref{table:hyperparameters} shows the subset of the search space used in this work.
+
+  In our case the model $L$ is a random forest. As said before, the budget is the maximum number of trees that the final random forest will have. The choice of the score $S$ is dependent from the target. For simplicity we use the $F_{1}$ score (i.e. we want to maximize both \textit{Precision} and \textit{Recall}). In this work the hyperparameters search space can be defined formally as:
+  \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split Criterion}} \times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
+  \[\times \overbrace{\mathbb{N}^{*}}^{\text{Max depth}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples to split}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples at leaf}}\]
+  For obvious reasons only a subset of this space can be explored. Table \ref{table:hyperparameters} shows the subset of the search space used in this work.
 
   \begin{table}
     \centering
@@ -63,32 +74,54 @@
       \hline\hline
       Split Criterions & $\{gini, entropy\}$ \\
       \hline
+      Features percentage & $(0, 1]$ \\
+      \hline
       Maximum Depth & $\{8,9,...,32\}$ \\
       \hline
       Minimum samples to split & $\{2,3,...,16\}$ \\
       \hline
       Minimum samples at a leaf & $\{1,2,...,10\}$ \\
       \hline
-      Features percentage & $(0, 1]$ \\
-      \hline
     \end{tabular}
     \caption{The hyperparameters space subset used in this work.}
     \label{table:hyperparameters}
   \end{table}
 
-  The optimization task consists to find a point in the hyperparameters space:
+  The result of the hyperparameters optimization task is a point in the hyperparameters space:
   \[\omega=(c, h, k, t, p)\in\Omega\]
-  where $c$ is the split criterion, $h$ is the maximum depth, $k$ is the minimum number of samples to split, $t$ is the minimum number of samples at a leaf, $p$ is the features percentage for each tree, such that the random forest built from these hyperparameters maximize a certain score. The choice of this score is dependent from the task. For simplicity we use the $F_{1}$ score (i.e. we want to maximize both \textit{Precision} and \textit{Recall}).
+  where $c$ is the split criterion, $h$ is the maximum depth, $k$ is the minimum number of samples to split, $t$ is the minimum number of samples at a leaf, $p$ is the features percentage for each tree.
 
 \section{Conclusion and Results}
+  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better precision and recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
+
   As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
 
-  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better precision and recall. For this task we want to have a better recall because we want to maximize the number of actual exoplanets discovered.
   In the end we present Table \ref{table:importances} that shows the importances of the first five out eighteen features used.
   
   \begin{table}
     \centering
-    \begin{tikzpicture}[scale=2]
+    \begin{tabular}{|c c c c|}
+      \hline
+      Model & Precision & Recall & $F_{1}$  \\
+      \hline\hline
+      k-NN & 0.922 & 0.829 & 0.873 \\
+      \hline
+      SVC & 0.925 & 0.875 & 0.899 \\
+      \hline
+      2-layer NN & 0.930 & 0.917 & 0.926 \\
+      \hline
+      Random Forest & 0.938 & 0.932 & 0.938 \\
+      \hline
+      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.944} & \textbf{0.941} & \textbf{0.943} \\
+      \hline
+    \end{tabular}
+    \caption{Precision, recall and $F_{1}$ metrics of several models for comparison. The hyperparameters were optimized automatically. In this table it was built with the following hyperparameters found: $\omega = (entropy, 32, 7, 2, 0.5)$}
+    \label{table:benchmark}
+  \end{table}
+  
+  \begin{table}[h]
+    \centering
+    \begin{tikzpicture}[scale=1.5]
       % Draw the box
       \draw[thick] (0, 0) -- (2, 0);
       \draw[thick] (0, 0) -- (0, 2);
@@ -115,27 +148,6 @@
 
   \begin{table}
     \centering
-    \begin{tabular}{|c c c c|}
-      \hline
-      Model & Precision & Recall & $F_{1}$  \\
-      \hline\hline
-      k-NN & 0.922 & 0.829 & 0.873 \\
-      \hline
-      SVC & 0.925 & 0.875 & 0.899 \\
-      \hline
-      2-layer NN & 0.930 & 0.917 & 0.926 \\
-      \hline
-      Random Forest & 0.938 & 0.932 & 0.938 \\
-      \hline
-      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.944} & \textbf{0.941} & \textbf{0.943} \\
-      \hline
-    \end{tabular}
-    \caption{Precision, recall and $F_{1}$ metrics of several models for comparison. The hyperparameters were optimized automatically. In this table it was built with the following hyperparameters found: $\omega = (entropy, 32, 7, 2, 0.5)$}
-    \label{table:benchmark}
-  \end{table}
-
-  \begin{table}
-    \centering
     \begin{tabular}{|c c c|}
     \hline
     Feature \# & Description & Importance \\
@@ -151,7 +163,6 @@
     \label{table:importances}
   \end{table}
 
-\newpage
 \begin{appendix}
   \section{Split criterions}
     \label{appendix:splitcriterions}
@@ -185,5 +196,8 @@
     \end{enumerate}
     \label{appendix:features}
 \end{appendix}
+
+\bibliography{bibliography.bib}
+\bibliographystyle{unsrt}
 
 \end{document}
