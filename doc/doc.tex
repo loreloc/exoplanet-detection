@@ -15,26 +15,29 @@
 
 \maketitle
 \begin{abstract}
-  This work consists of identifying exoplanets using random forest which hyperparameters are automatically optimized.
-  The model is trained using the processed data that comes from NASA's Kepler project of discovering exoplanets (e.g. planets outside our solar system).
+  This work consists of identifying exoplanets using random forest which hyperparameters are automatically optimized with techniques that come from the \texttt{AutoML} research.
+  The model is trained using the processed data that comes from the \texttt{NASA Kepler} project of discovering exoplanets (i.e. planets outside our solar system).
   The hyperparameters of the model are optimized and cross-validated with \texttt{Hyperband}, a simple yet effective and scalable method for hyperparameters optimization.
-  The data used in this work can be found at \textbf{https://exoplanetarchive.ipac.caltech.edu}.
+  The dataset used in this work can be found at \textbf{https://exoplanetarchive.ipac.caltech.edu}.
 \end{abstract}
 
 \section{Introduction}
   \paragraph{Kepler Object of Interest}
-    The dataset used to train the model is composed by a list of features regarding exoplanets. Each tuple have a label indicating if the corresponding exoplanet is candidate, false positive or confirmed. The selected features for the classification task can be found in Appendix \ref{appendix:features}. The tuples corresponding to features of candidate exoplanets are discarded. Only confirmed and false positive ones are included in the train and the test sets in order to reduce noises and improve the learning process. The preprocess method applied to the dataset is the standard normalization.
-
-  \paragraph{Random Forests and Hyperparameters}
-    The model used for the classification task is a random forest, an ensemble of random decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Each tree of the forest is trained on a subset of the features and samples.
-    The hyperparameters of the random forest are optimized and cross-validated using \texttt{Hyperband}. The following hyperparameters are optimized:
+    The dataset used in this work is the cumulative list of the \texttt{Kepler Object of Interest} (\texttt{KOI}) that comes from the \texttt{NASA Kepler} project of discovering exoplanets.
+    The dataset is composed by a list of examples regarding exoplanets. Each example have a label indicating if the corresponding exoplanet is candidate, false positive or confirmed. The provided dataset consists of a lot of heterogeneous features. For the classification task the selected features can be found in Appendix \ref{appendix:features}. The candidate exoplanets (i.e. the exoplanets which existence is uncertain) are discarded in order to reduce noise and improve the learning process.
+    For simplicity all the examples having null values are removed from the dataset. Furthermore, all the selected features are numeric and so the preprocessing method applied to the dataset is the standard normalization.
+    The resulting dataset contains \texttt{6884} samples, which \textasciitilde \texttt{67\%} are false positives and the remaining are confirmed.
+    
+  \paragraph{Random Forests}
+    The model used for the classification task is a random forest, an ensemble of random decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Random decision forests correct the habit of decision trees of overfitting. Each tree of the forest is trained on a subset of the features and samples. The hyperparameters of the random forest are optimized and cross-validated using approaches that come from the \texttt{AutoML} research. The following hyperparameters are optimized:
     \begin{itemize}
-      \item The split criterion (it can be \textit{Gini} or \textit{Entropy})
+      \item The split criterion (Gini impurity or information gain, see Appendix \ref{appendix:splitcriterions} for details)
       \item The maximum depth of each tree
       \item The minimum number of samples required to split an internal node
       \item The minimum number of samples to be at a leaf node
       \item The percentage of features to use for each tree
     \end{itemize}
+  As the next section will expose, the number of trees in the random forest is not considered an hyperparameter because it represents the budget of the hyperparameters optimization algorithm chosen. In this work we refer with budget as the computational cost of training and cross-validating a certain model.
 
 \section{Hyperparameters Tuning}
   The hyperparameters optimization task consists to find the hyperparameters for a model that maximize a certain score. In this work we refer to hyperparameters as the ones that cannot be trained (e.g. the ones described in the previous section).
@@ -150,6 +153,16 @@
 
 \newpage
 \begin{appendix}
+  \section{Split criterions}
+    \label{appendix:splitcriterions}
+    \subsection{Gini impurity}
+      Citing \texttt{wikipedia.org}, Gini impurity is a measure of how often a randomly chosen element from the set would be incorrectly labeled if it was randomly labeled according to the distribution of labels in the subset. To compute Gini impurity for a set of items with $J$ classes, suppose $i\in\{1,2,...,J\}$, and let $p_{i}$ be the faction of items labeled with class $i$ in the set.
+      \[{I} _{G}(p)=\sum _{i=1}^{J}p_{i}\sum _{k\neq i}p_{k}=\sum _{i=1}^{J}p_{i}(1-p_{i})=\sum _{i=1}^{J}p_{i}-\sum _{i=1}^{J}{p_{i}}^{2}=1-\sum _{i=1}^{J}{p_{i}}^{2}\]
+    \subsection{Information gain}
+      Information gain is based on the concept of entropy and information content from information theory. For each node of the tree, the information value represents the expected amount of information that would be needed to specify whether a new instance should be classified yes or no, given the example reached that node. Suppose $i\in\{1,2,...,J\}$, where $J$ is the number of classes, and let $p_{i}$ be the faction of items labeled with class $i$ in the set.
+      \[IG(T, a)=\mathrm{H}(T)-\mathrm{H}(T|a)=-\sum _{i=1}^{J}p_{i}\log _{2}{p_{i}}-\sum _{a}{p(a)\sum _{i=1}^{J}-\mathrm{P}(i|a)\log _{2}{\mathrm{P}(i|a)}}\]
+      where $T$ is a set of training examples, $\mathrm{H}(T)$ is the entropy of $T$ and $\mathrm{H}(T|a)$ is the conditional entropy for $T$ given the feature $a$.
+
   \section{Exoplanet Features}
     \begin{enumerate}
       \item Orbital Period [days]
