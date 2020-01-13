@@ -47,7 +47,7 @@
 \section{Hyperparameters Tuning}
   In this section it will be shown a formalization of the hyperparameters optimization task as a search problem. In this work we refer to hyperparameters as the ones that cannot be trained (e.g. the ones described in the previous section). After that we briefly introduce the hyperparameters optimizer used in this work, \texttt{Hyperband}, as described in \cite{hyperband}.
 
-  Given a training set $T$, a model $L$ and its hyperparameters search space $\Omega$, the hyperparameters optimization task consists to find a set of hyperparameters $\omega \in \Omega$ such that the resulting model $L(\omega)$ maximizes a certain score $S$ using cross-validation on $T$.
+  Given a training set $T$, a model $L$ and its hyperparameters search space $\Omega$, the hyperparameters optimization task consists to find a set of hyperparameters $\omega \in \Omega$ such that the resulting model $L\langle\omega\rangle$ maximizes a certain score $S$ using cross-validation on $T$.
 
   There are a lot of different techniques for hyperaparameters optimization, some of them are the following:
   \begin{itemize}
@@ -62,27 +62,29 @@
   
   As we said before we refer to budget as the computational cost of cross-validating a certain model. For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees.
 
-  Given a budget $B$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of $B$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a large portion of $B$ and iterate in this way until we use the complete budget $B$. The procedure of consequently eliminating hyperparameters samples is called \texttt{Successive Halving}.  The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$.
-  Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others. The following algorithm a simplified implementation of $Hyperband$. Note that we use a new parameter $iter$ in order to repeat multiple times the \texttt{Successive Halving} algorithm.
+  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of the budget $R$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$. The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}. The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$. The problem is to determinate the number of initial random points of the hyperparameters space to sample. To resolve this issue we execute the previous discussed algorithm multiple times using less and less initial random points and using an higher starting budget.
+
+  Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others. The following algorithm shows an implementation of $Hyperband$.
   
   \begin{algorithm}
     \caption{Hyperband algorithm for hyperparameters optimization}
     \label{algorithm:hyperband}
     \begin{algorithmic}[1]
-      \Procedure{Hyperband}{$T,L,S,\Omega,B,\eta,iter$}
-        \State $R \gets \emptyset$
-        \State $s \gets \lfloor \log_{\eta}{B} \rfloor$
-        \State $n = \eta^{s}$
-        \For{$i \gets 0,...,iter$}
+      \Procedure{Hyperband}{$T,L,S,\Omega,R,\eta$}
+        \State $C \gets \emptyset$
+        \State $s_{max} \gets \lfloor \log_{\eta}{R} \rfloor, \quad B \gets (s_{max} + 1)R$
+        \For{$s \in \{s_{max},s_{max}-1,...,0\}$}
+          \State $n \gets \lceil \frac{B}{R}\frac{\eta^{s}}{(s+1)} \rceil$
+          \State $r \gets R\eta^{-s}$
           \State $H \gets getRandomHyperparameters(n,\Omega)$
-          \For{$j \gets 1,...,s$}
-            \State $n_{j} \gets n\eta^{-j}$
-            \State $r_{j} \gets \lfloor B/\eta^{s-j} \rfloor$
-            \State $H \gets top_{n_{j}} \arg sort_{\omega} \{S(m, T) \mid \omega \in H, m=L(\omega \cup \{r_{j}\})\}$
+          \For{$i \in \{0,...,s\}$}
+            \State $n_{i} \gets \lfloor n\eta^{-i} \rfloor$
+            \State $r_{i} \gets r\eta^{i}$
+            \State $H \gets top_{\lfloor n_{i}/\eta \rfloor} \arg sort_{\omega} \{S(L\langle\omega \cup \{r_{i}\}\rangle, T) \mid \omega \in H\}$
           \EndFor
-          \State $R \gets R \cup H$
+          \State $C \gets C \cup H$
         \EndFor
-        \State \textbf{return} $\arg max_{\omega} \{S(m, T) \mid \omega \in R, m=L(\omega \cup \{B\})\}$
+        \State \textbf{return} $\arg max_{\omega} \{S(L\langle\omega \cup \{R\}\rangle, T) \mid \omega \in C\}$
       \EndProcedure
     \end{algorithmic}
   \end{algorithm}
@@ -114,8 +116,8 @@
   \end{table}
 
   The result of the hyperparameters optimization task is a point in the hyperparameters space:
-  \[\omega=(c, h, k, t, p)\in\Omega\]
-  where $c$ is the split criterion, $h$ is the maximum depth, $k$ is the minimum number of samples to split, $t$ is the minimum number of samples at a leaf, $p$ is the features percentage for each tree.
+  \[\omega=(c, p, h, k, t)\in\Omega\]
+  where $c$ is the split criterion, $p$ is the features fraction for each tree, $h$ is the maximum depth, $k$ is the minimum number of samples to split and $t$ is the minimum number of samples at a leaf.
 
 \section{Conclusion}
   As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall}. We can choose any score function for hyperparameters optimization. For example we can decide to maximize only one between \textit{Precision} and \textit{Recall} scores. Furthermore, it's possible to use other metrics like \textit{Average Precision}.
