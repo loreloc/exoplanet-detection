@@ -78,11 +78,11 @@
           \For{$j \gets 1,...,s$}
             \State $n_{j} \gets n\eta^{-j}$
             \State $r_{j} \gets \lfloor B/\eta^{s-j} \rfloor$
-            \State $H \gets top_{n_{j}} \arg sort_{\omega} \{S(L(\omega \cup \{r_{j}\}), T) \mid \omega \in H\}$
+            \State $H \gets top_{n_{j}} \arg sort_{\omega} \{S(m, T) \mid \omega \in H, m=L(\omega \cup \{r_{j}\})\}$
           \EndFor
           \State $R \gets R \cup H$
         \EndFor
-        \State \textbf{return} $\arg max_{\omega} \{S(L(\omega \cup \{B\}), T) \mid \omega \in R\}$
+        \State \textbf{return} $\arg max_{\omega} \{S(m, T) \mid \omega \in R, m=L(\omega \cup \{B\})\}$
       \EndProcedure
     \end{algorithmic}
   \end{algorithm}
