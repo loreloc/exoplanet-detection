@@ -1,16 +1,19 @@
 \documentclass[11pt, a4paper]{article}
 
 \usepackage{tikz}
-\usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{graphicx}
 \usepackage{multicol}
 \usepackage{appendix}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 
 \date{}
-\title{Exoplanets detection using random forest}
+\title{Exoplanets detection using \\ auto-tuned random forest}
 \author{Lorenzo Loconte}
 
 \begin{document}
@@ -57,10 +60,32 @@
 
   The simplest algorithm is \texttt{Random Search}. It works well if the hyperparameters search space is not too big. \texttt{Random Search} is expensive because each evaluation of the score function is done on models completely built from scratch. So, each evaluation of the score function on some randomly selected hyperparameters will use the same amount of resources, even if some hyperparameters of the search space obtain a very low score. The idea behind \texttt{Hyperband} is that it's better to save up resources on these hyperparamters configurations that doesn't obtain a sufficiently good score by gradually building more complex models over time.
   
-  As we said before we refer to budget as the computational cost of cross-validating a certain model. For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees. We must know that the computational cost of cross-validating a model is directly proportional to the budget.
+  As we said before we refer to budget as the computational cost of cross-validating a certain model. For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees.
 
-  Given a budget $B$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of $B$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a large portion of $B$ and iterate in this way until we use the complete budget $B$. The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$. So, the parameters $B$ and $\eta$ are chosen in such way that we obtain $\eta$ models at the end of the iterations.
-  Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others.
+  Given a budget $B$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of $B$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a large portion of $B$ and iterate in this way until we use the complete budget $B$. The procedure of consequently eliminating hyperparameters samples is called \texttt{Successive Halving}.  The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$.
+  Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others. The following algorithm a simplified implementation of $Hyperband$. Note that we use a new parameter $iter$ in order to repeat multiple times the \texttt{Successive Halving} algorithm.
+  
+  \begin{algorithm}
+    \caption{Hyperband algorithm for hyperparameters optimization}
+    \label{algorithm:hyperband}
+    \begin{algorithmic}[1]
+      \Procedure{Hyperband}{$T,L,S,\Omega,B,\eta,iter$}
+        \State $R \gets \emptyset$
+        \State $s \gets \lfloor \log_{\eta}{B} \rfloor$
+        \State $n = \eta^{s}$
+        \For{$i \gets 0,...,iter$}
+          \State $H \gets getRandomHyperparameters(n,\Omega)$
+          \For{$j \gets 1,...,s$}
+            \State $n_{j} \gets n\eta^{-j}$
+            \State $r_{j} \gets \lfloor B/\eta^{s-j} \rfloor$
+            \State $H \gets top_{n_{j}} \arg sort_{\omega} \{S(L(\omega \cup \{r_{j}\}), T) \mid \omega \in H\}$
+          \EndFor
+          \State $R \gets R \cup H$
+        \EndFor
+        \State \textbf{return} $\arg max_{\omega} \{S(L(\omega \cup \{B\}), T) \mid \omega \in R\}$
+      \EndProcedure
+    \end{algorithmic}
+  \end{algorithm}
 
   In our case the model $L$ is a random forest. As said before, the budget is the maximum number of trees that the final random forest will have. The choice of the score $S$ is dependent from the target task. For simplicity we use the $F_{1}$ score (i.e. we want to maximize both \textit{Precision} and \textit{Recall}). In this work the hyperparameters search space can be defined formally as:
   \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split Criterion}} \times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
@@ -92,13 +117,13 @@
   \[\omega=(c, h, k, t, p)\in\Omega\]
   where $c$ is the split criterion, $h$ is the maximum depth, $k$ is the minimum number of samples to split, $t$ is the minimum number of samples at a leaf, $p$ is the features percentage for each tree.
 
-\section{Conclusion and Results}
+\section{Conclusion}
   As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall}. We can choose any score function for hyperparameters optimization. For example we can decide to maximize only one between \textit{Precision} and \textit{Recall} scores. Furthermore, it's possible to use other metrics like \textit{Average Precision}.
   
   As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
 
   In the end we present Table \ref{table:importances} that shows the importances of the first five out eighteen features used.
-  
+
   \begin{table}
     \centering
     \begin{tabular}{|c c c c|}
@@ -120,24 +145,21 @@
     \label{table:benchmark}
   \end{table}
   
-  \begin{table}[b]
+  \begin{table}
     \centering
     \begin{tikzpicture}[scale=1.67]
-      % Draw the box
       \draw[thick] (0, 0) -- (2, 0);
       \draw[thick] (0, 0) -- (0, 2);
       \draw[thick] (2, 2) -- (2, 0);
       \draw[thick] (2, 2) -- (0, 2);
       \draw[thick] (0, 1) -- (2, 1);
       \draw[thick] (1, 0) -- (1, 2);
-      % Draw the headers
       \node[rotate=0] (h1) at (1, 2.5) {\textbf{Actual}};
         \node[rotate=0] (h11) at (0.5, 2.25) {Positive};
         \node[rotate=0] (h12) at (1.5, 2.25) {Negative};
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      % Draw the category values
       \coordinate[label={\textbf{411}}] (PP) at (0.5, 1.33);
       \coordinate[label={ 55}] (NP) at (0.5, 0.33);
       \coordinate[label={ 49}] (PN) at (1.5, 1.33);
@@ -164,9 +186,7 @@
     \label{table:importances}
   \end{table}
 
-\vspace*{1.25cm}
 \appendix
-\appendixpage
 \section{Decision tree split criterions}
   \label{appendix:splitcriterions}
   \subsection{Gini impurity}
@@ -178,7 +198,6 @@
 
 \section{Exoplanet Features}
   \label{appendix:features}
-  \setlength{\columnsep}{0mm}
   \begin{multicols}{2}
     \begin{enumerate}
       \item Orbital Period [$days$]
