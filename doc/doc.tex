@@ -140,10 +140,10 @@
       \hline
       Random Forest & 0.939 & 0.934 & 0.936 \\
       \hline
-      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.946} & \textbf{0.940} & \textbf{0.943} \\
+      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.946} & \textbf{0.942} & \textbf{0.944} \\
       \hline
     \end{tabular}
-    \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} we used $B=180$ and $\eta=3$.}
+    \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} we used $B=216$ and $\eta=3$.}
     \label{table:benchmark}
   \end{table}
   
@@ -163,9 +163,9 @@
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
       \coordinate[label={\textbf{411}}] (PP) at (0.5, 1.33);
-      \coordinate[label={ 55}] (NP) at (0.5, 0.33);
+      \coordinate[label={ 53}] (NP) at (0.5, 0.33);
       \coordinate[label={ 49}] (PN) at (1.5, 1.33);
-      \coordinate[label={\textbf{862}}] (NN) at (1.5, 0.33);
+      \coordinate[label={\textbf{864}}] (NN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
@@ -177,11 +177,11 @@
     \hline
     Feature \# & Description & Importance \\
     \hline\hline
-    7 & Planetary Radius & 0.199 \\
-    5 & Planet-Star Radius Ratio & 0.108 \\
-    1 & Orbital Period & 0.086 \\
-    6 & Fitted Stellar Density & 0.079 \\
-    8 & Orbit Semi-Major Axis & 0.066 \\
+    7 & Planetary Radius & 0.146 \\
+    5 & Planet-Star Radius Ratio & 0.132 \\
+    1 & Orbital Period & 0.078 \\
+    4 & Transit Depth & 0.068 \\
+    2 & Impact Parameter & 0.067 \\
     \hline
     \end{tabular}
     \caption{Features importances in descending order.}

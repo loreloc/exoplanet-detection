@@ -16,9 +16,9 @@ seed = 42
 np.random.seed(seed)
 
 # Set the parameters for hyperparameters optimization
-min_budget = 20
-max_budget = 180
-n_iterations = 64
+min_budget = 8
+max_budget = 216
+n_iterations = 32
 n_workers = 4
 
 # Load the dataset
