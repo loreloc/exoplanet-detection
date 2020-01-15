@@ -19,7 +19,7 @@ class RFCWorker(Worker):
 
 		scores = cross_val_score(
 			rfc, self.x_train, self.y_train,
-			scoring='f1_weighted', cv=StratifiedKFold(5)
+			scoring='precision', cv=StratifiedKFold(5)
 		)
 
 		return ({

@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
 
 # Print some evaluation metrics
 def show_metrics(rfc, x_test, y_test):
@@ -10,14 +12,13 @@ def show_metrics(rfc, x_test, y_test):
 	# Calculate the predictions the test set
 	y_pred = rfc.predict(x_test)
 
-	# Compute precision, recall and F1 metrics
-	precision, recall, f1, _ = precision_recall_fscore_support(
-		y_test, y_pred, average='weighted'
-	)
-	# Print precision, recall and f1 metrics
-	print('Precision: ' + str(round(precision, 3)))
-	print('Recall: ' + str(round(recall, 3)))
-	print('F1: ' + str(round(f1, 3)))
+	# Compute and print precision, recall and F1 metrics
+	precision = precision_score(y_test, y_pred)
+	recall = recall_score(y_test, y_pred)
+	f1 = f1_score(y_test, y_pred)
+	print('Precision: ' + str(precision))
+	print('Recall: ' + str(recall))
+	print('F1: ' + str(f1))
 
 	# Compute and print the confusion matrix
 	cm = confusion_matrix(y_test, y_pred)
@@ -25,7 +26,7 @@ def show_metrics(rfc, x_test, y_test):
 	print(cm)
 
 	# Compute and print the first five most important features
-	importances = np.round(rfc.feature_importances_, 3)
+	importances = rfc.feature_importances
 	indices = np.argsort(importances)[::-1][:5]
 	print('Features Importances:')
 	print(list(zip(indices, importances[indices])))
