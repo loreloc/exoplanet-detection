@@ -1,8 +1,6 @@
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import f1_score
+from sklearn.metrics import precision_recall_fscore_support
 
 # Print some evaluation metrics
 def show_metrics(rfc, x_test, y_test):
@@ -13,9 +11,9 @@ def show_metrics(rfc, x_test, y_test):
 	y_pred = rfc.predict(x_test)
 
 	# Compute precision, recall and F1 metrics
-	precision = precision_score(y_test, y_pred)
-	recall = recall_score(y_test, y_pred)
-	f1 = f1_score(y_test, y_pred)
+	precision, recall, f1, _ = precision_recall_fscore_support(
+		y_test, y_pred, average='weighted'
+	)
 	# Print precision, recall and f1 metrics
 	print('Precision: ' + str(round(precision, 3)))
 	print('Recall: ' + str(round(recall, 3)))

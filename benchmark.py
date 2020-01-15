@@ -3,7 +3,6 @@
 import numpy as np
 from sklearn.model_selection import cross_validate
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import precision_recall_fscore_support
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -32,13 +31,14 @@ cv = StratifiedKFold(5)
 def evaluate_model(model):
     scores = cross_validate(
         model, x_data, y_data, cv=cv,
-        scoring=['precision', 'recall', 'f1'], verbose=1
+        scoring=['precision_weighted', 'recall_weighted', 'f1_weighted'],
+        verbose=1
     )
 
     return {
-        'precision': scores['test_precision'].mean(),
-        'recall': scores['test_recall'].mean(),
-        'f1': scores['test_f1'].mean()
+        'precision': scores['test_precision_weighted'].mean(),
+        'recall': scores['test_recall_weighted'].mean(),
+        'f1': scores['test_f1_weighted'].mean()
     }
 
 for k in models:

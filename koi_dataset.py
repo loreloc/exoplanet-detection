@@ -21,7 +21,7 @@ def load_koi_dataset(nrows=None, test_size=0.2):
     df_y = df['koi_disposition']
     df_x = df.drop('koi_disposition', axis=1)
     # Preprocess the disposition
-    df_y = df_y.apply(lambda x: 0 if x == 'CONFIRMED' else 1)
+    df_y = df_y.apply(lambda x: 1 if x == 'CONFIRMED' else 0)
 
     # Convert to numpy arrays
     x_data = df_x.to_numpy()
