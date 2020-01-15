@@ -11,7 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 from koi_dataset import load_koi_dataset
 
 # Set the seed
-seed = 42
+seed = 23
 np.random.seed(seed)
 
 # Load the dataset

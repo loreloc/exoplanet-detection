@@ -12,13 +12,13 @@ LOCALHOST = '127.0.0.1'
 PROJECT_NAME = 'exoplanet-detection'
 
 # Set the seed
-seed = 42
+seed = 23
 np.random.seed(seed)
 
 # Set the parameters for hyperparameters optimization
 min_budget = 8
 max_budget = 216
-n_iterations = 32
+n_iterations = 16
 n_workers = 4
 
 # Load the dataset
