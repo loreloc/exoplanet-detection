@@ -26,7 +26,7 @@ def show_metrics(rfc, x_test, y_test):
 	print(cm)
 
 	# Compute and print the first five most important features
-	importances = rfc.feature_importances
+	importances = rfc.feature_importances_
 	indices = np.argsort(importances)[::-1][:5]
 	print('Features Importances:')
 	print(list(zip(indices, importances[indices])))
