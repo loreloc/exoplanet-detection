@@ -62,7 +62,7 @@
   
   As we said before we refer to budget as the computational cost of cross-validating a certain model. For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees.
 
-  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of the budget $R$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$. The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}. The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$. The remaining problem is to determinate the number of initial random points of the hyperparameters space to sample. To resolve this issue we execute the discussed algorithm multiple times using less and less initial random points and using an higher starting budget.
+  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of the budget $R$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$. The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}. The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$. The remaining problem is to determinate the number of initial random points of the hyperparameters space to sample. To resolve this issue we execute the discussed algorithm multiple times using less and less initial random points and using an higher starting budget. So, initially \textit{exploration} is preferred and \textit{exploitation} is performed later.
 
   Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others. The following algorithm shows an implementation of $Hyperband$.
   
@@ -74,8 +74,7 @@
         \State $C \gets \emptyset$
         \State $s_{max} \gets \lfloor \log_{\eta}{R} \rfloor, \quad B \gets (s_{max} + 1)R$
         \For{$s \in \{s_{max},s_{max}-1,...,0\}$}
-          \State $n \gets \lceil \frac{B}{R}\frac{\eta^{s}}{(s+1)} \rceil$
-          \State $r \gets R\eta^{-s}$
+          \State $n \gets \lceil \frac{B}{R}\frac{\eta^{s}}{(s+1)} \rceil, \quad r \gets R\eta^{-s}$
           \State $H \gets getRandomHyperparameters(n,\Omega)$
           \For{$i \in \{0,...,s\}$}
             \State $n_{i} \gets \lfloor n\eta^{-i} \rfloor$
