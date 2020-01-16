@@ -12,6 +12,7 @@ class RFCWorker(Worker):
 		super().__init__(*args, **kwargs)
 		self.x_train = x_train
 		self.y_train = y_train
+		(self.num_samples, self.num_features) = x_train.shape
 
 	# Cross-validate a random forest hyperparameters configuration
 	def compute(self, config, budget, **kwargs):
@@ -26,22 +27,8 @@ class RFCWorker(Worker):
 			'loss': 1.0 - scores.mean()
 		})
 
-	# Build a random forest classifier using its hyperparameters configuration
-	# The budget rappresents the number of trees in the forest
-	@staticmethod
-	def build(config, budget):
-		return RandomForestClassifier(
-			n_estimators=int(budget),
-			criterion=config['criterion'],
-			max_features=config['max_features'],
-			max_depth=config['max_depth'],
-			min_samples_split=config['min_samples_split'],
-			min_samples_leaf=config['min_samples_leaf']
-		)
-
 	# Get the random forest hyperparameters configuration space
-	@staticmethod
-	def get_configspace():
+	def get_configspace(self):
 		cs = CS.ConfigurationSpace()
 
 		# The split criterion
@@ -50,8 +37,8 @@ class RFCWorker(Worker):
 		)
 
 		# The maximum percentage of features to use for each tree
-		max_features = CSH.UniformFloatHyperparameter(
-			name='max_features', lower=0.0, upper=1.0
+		max_features = CSH.UniformIntegerHyperparameter(
+			name='max_features', lower=2, upper=self.num_features
 		)
 
 		# The maximum depth
@@ -66,7 +53,7 @@ class RFCWorker(Worker):
 
 		# The minimum number of samples required to be at a leaf node
 		min_samples_leaf = CSH.UniformIntegerHyperparameter(
-			name='min_samples_leaf', lower=1, upper=10
+			name='min_samples_leaf', lower=1, upper=5
 		)
 
 		# Add the hyperparameters to the configuration space
@@ -79,3 +66,16 @@ class RFCWorker(Worker):
 		])
 
 		return cs
+
+	# Build a random forest classifier using its hyperparameters configuration
+	# The budget rappresents the number of trees in the forest
+	@staticmethod
+	def build(config, budget):
+		return RandomForestClassifier(
+			n_estimators=int(budget),
+			criterion=config['criterion'],
+			max_features=config['max_features'],
+			max_depth=config['max_depth'],
+			min_samples_split=config['min_samples_split'],
+			min_samples_leaf=config['min_samples_leaf']
+		)

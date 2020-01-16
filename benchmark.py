@@ -9,14 +9,10 @@ from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from koi_dataset import load_koi_dataset
 
-# Set the seed
-seed = 23
+seed = 1234
 np.random.seed(seed)
 
-# Load the dataset
-x_train, x_test, y_train, y_test = load_koi_dataset()
-x_data = np.concatenate((x_train, x_test))
-y_data = np.concatenate((y_train, y_test))
+x_data, y_data = load_koi_dataset()
 
 models = {
     'knn': KNeighborsClassifier(),

@@ -108,7 +108,7 @@
       \hline
       Minimum samples to split & $\{2,3,...,16\}$ \\
       \hline
-      Minimum samples at a leaf & $\{1,2,...,10\}$ \\
+      Minimum samples at a leaf & $\{1,2,...,5\}$ \\
       \hline
     \end{tabular}
     \caption{The hyperparameters space subset used in this work.}
@@ -132,13 +132,13 @@
       \hline
       Model & Precision & Recall & $F_{1}$  \\
       \hline\hline
-      k-NN & 0.718 & 0.857 & 0.782 \\
+      k-NN & 0.700 & 0.832 & 0.757 \\
       \hline
-      SVC & 0.775& 0.856 & 0.813 \\
+      SVC & 0.775& 0.854 & 0.808 \\
       \hline
-      2-layer NN & 0.833 & 0.881 & 0.856 \\
+      2-layer NN & 0.830 & 0.852 & 0.838 \\
       \hline
-      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.875} & \textbf{0.880} & \textbf{0.878} \\
+      \textbf{Random Forest w/\texttt{Hyperband}} & \textbf{0.866} & \textbf{0.874} & \textbf{0.870} \\
       \hline
     \end{tabular}
     \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} we used $R=216$ and $\eta=3$.}
@@ -160,10 +160,10 @@
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      \coordinate[label={\textbf{405}}] (PP) at (0.5, 1.33);
-      \coordinate[label={ 55}] (NP) at (0.5, 0.33);
-      \coordinate[label={ 58}] (PN) at (1.5, 1.33);
-      \coordinate[label={\textbf{859}}] (NN) at (1.5, 0.33);
+      \coordinate[label={\textbf{402}}] (PP) at (0.5, 1.33);
+      \coordinate[label={ 58}] (NP) at (0.5, 0.33);
+      \coordinate[label={ 62}] (PN) at (1.5, 1.33);
+      \coordinate[label={\textbf{855}}] (NN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
@@ -175,11 +175,11 @@
     \hline
     Feature \# & Description & Importance \\
     \hline\hline
-    7 & Planetary Radius & 0.141 \\
-    5 & Planet-Star Radius Ratio & 0.126 \\
-    1 & Orbital Period & 0.073 \\
-    4 & Transit Depth & 0.072 \\
-    6 & Fitted Stellar Density & 0.063 \\
+    5 & Planetary Radius & 0.276 \\
+    1 & Orbital Period & 0.162 \\
+    4 & Fitted Stellar Density & 0.087 \\
+    3 & Transit Depth & 0.085 \\
+    6 & Inclination & 0.071 \\
     \hline
     \end{tabular}
     \caption{Features importances in descending order.}
@@ -187,6 +187,7 @@
   \end{table}
 
 \appendix
+\appendixpage
 \section{Decision tree split criterions}
   \label{appendix:splitcriterions}
   \subsection{Gini impurity}
@@ -194,20 +195,17 @@
     \[{I} _{G}(p)=\sum _{i=1}^{J}p_{i}\sum _{k\neq i}p_{k}=\sum _{i=1}^{J}p_{i}(1-p_{i})=\sum _{i=1}^{J}p_{i}-\sum _{i=1}^{J}{p_{i}}^{2}=1-\sum _{i=1}^{J}{p_{i}}^{2}\]
   \subsection{Information gain}
     Information gain is based on the concept of entropy and information content from information theory. For each node of the tree, the information value represents the expected amount of information that would be needed to specify whether a new instance should be classified yes or no, given the example reached that node. Given $T$ the set of training examples, suppose $i\in\{1,2,...,J\}$, where $J$ is the number of classes, and let $p_{i}$ be the faction of items labeled with class $i$ in the training set.
-    \[IG(T, a)=\mathrm{H}(T)-\mathrm{H}(T|a)=-\sum _{i=1}^{J}p_{i}\log _{2}{p_{i}}-\sum _{a}{p(a)\sum _{i=1}^{J}-p(i|a)\log _{2}{p(i|a)}}\]
+    \[IG(T, a)=\mathrm{H}(T)-\mathrm{H}(T|a)=-\sum _{i=1}^{J}p_{i}\log _{2}{p_{i}}-\sum _{a}{p(a)\sum _{i=1}^{J}-\Pr(i|a)\log _{2}{\Pr(i|a)}}\]
 
 \section{Exoplanet Features}
   \label{appendix:features}
   \begin{multicols}{2}
     \begin{enumerate}
       \item Orbital Period [$days$]
-      \item Impact Parameter
       \item Transit Duration [$hrs$]
       \item Transit Depth [$ppm$]
-      \item Planet-Star Radius Ratio
       \item Fitted Stellar Density [$g/cm^{3}$]
       \item Planetary Radius [$Earth\:radii$]
-      \item Orbit Semi-Major Axis [$AU$]
       \item Inclination [$deg$]
       \item Equilibrium Temperature [$K$]
       \item Insolation Flux [$Earth\:flux$]

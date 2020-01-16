@@ -1,4 +1,6 @@
 import numpy as np
+import sklearn as sk
+import sklearn.model_selection
 import hpbandster.core.nameserver as hpns
 import hpbandster.core.result as hpres
 from hpbandster.optimizers import HyperBand
@@ -12,17 +14,21 @@ LOCALHOST = '127.0.0.1'
 PROJECT_NAME = 'exoplanet-detection'
 
 # Set the seed
-seed = 23
+seed = 1234
 np.random.seed(seed)
 
 # Set the parameters for hyperparameters optimization
 min_budget = 8
 max_budget = 216
-n_iterations = 16
+n_iterations = 32
 n_workers = 4
 
 # Load the dataset
-x_train, x_test, y_train, y_test = load_koi_dataset()
+x_data, y_data = load_koi_dataset()
+# Split the dataset in train set and test set
+x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
+	x_data, y_data, test_size=0.20, stratify=y_data
+)
 
 # Start a nameserver for hyperparameters optimization
 nameserver = hpns.NameServer(run_id=PROJECT_NAME, host=LOCALHOST, port=None)
@@ -37,10 +43,13 @@ for i in range(n_workers):
 	w.run(background=True)
 	workers.append(w)
 
+# Get the hyperparameters configuration space
+hp_space = workers[0].get_configspace()
+
 # Run an HyperBand optimizer
 hb = HyperBand(
-	configspace=RFCWorker.get_configspace(),
-	run_id=PROJECT_NAME, min_budget=min_budget, max_budget=max_budget
+	configspace=hp_space, run_id=PROJECT_NAME,
+	min_budget=min_budget, max_budget=max_budget
 )
 result = hb.run(n_iterations=n_iterations, min_n_workers=n_workers)
 

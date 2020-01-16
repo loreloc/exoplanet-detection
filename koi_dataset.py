@@ -1,17 +1,15 @@
 import numpy as np
 import pandas as pd
-import sklearn as sk
-import sklearn.preprocessing
-import sklearn.model_selection
+from sklearn.preprocessing import StandardScaler
 
 # Load and preprocess the KOI dataset
-def load_koi_dataset(nrows=None, test_size=0.2):
+def load_koi_dataset(nrows=None):
     # Load the dataset
     df = pd.read_csv('nasa_koi_planets.csv', comment='#', nrows=nrows)
     # Drop useless columns (row ID and KOI name)
     df = df.drop(['loc_rowid', 'kepoi_name'], axis=1)
 
-    # Replace rows having null values
+    # Remove rows having null values
     df = df.dropna(axis=0)
     # Remove rows having KOI disposition uncertain (e.g. CANDIDATE)
     candidateIndexes = df[df.koi_disposition == 'CANDIDATE'].index
@@ -28,12 +26,7 @@ def load_koi_dataset(nrows=None, test_size=0.2):
     y_data = df_y.to_numpy()
 
     # Standardize the features
-    scaler = sk.preprocessing.StandardScaler()
+    scaler = StandardScaler()
     x_data = scaler.fit_transform(x_data)
 
-    # Split the dataset in train set and test set
-    x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
-        x_data, y_data, test_size=test_size, stratify=y_data
-    )
-
-    return x_train, x_test, y_train, y_test
+    return x_data, y_data
