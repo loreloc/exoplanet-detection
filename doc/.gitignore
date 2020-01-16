@@ -1,10 +1,4 @@
 *.aux
-*.dvi
-*.fdb*
-*.fls
 *.log
-*.gz
-*.tex~
 *.bbl
-*.bbl~
 *.blg
