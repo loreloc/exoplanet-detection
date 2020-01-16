@@ -28,16 +28,16 @@
 
 \section{Introduction}
   \paragraph{Kepler Object of Interest}
-    The dataset used in this work is the cumulative list of the \texttt{Kepler Object of Interest} (\texttt{KOI}) that comes from the \texttt{NASA Kepler} project of discovering exoplanets.
+    The dataset used in this work is the cumulative list of the \texttt{Kepler Object of Interest} (\texttt{KOI}) tables that come from the \texttt{NASA Kepler} project of discovering exoplanets.
     The dataset is composed by a list of examples regarding exoplanets. Each example have a label indicating if the corresponding exoplanet is candidate, false positive or confirmed. The provided dataset consists of a lot of heterogeneous features. For the classification task the selected features can be found in Appendix \ref{appendix:features}. The candidate exoplanets (i.e. the exoplanets which existence is uncertain) are discarded in order to reduce noise and improve the learning process.
-    For simplicity all the examples having null values are removed from the dataset. Furthermore, all the selected features are numeric and so the preprocessing method applied to the dataset is the standard normalization.
+    For simplicity all the examples having null values are removed from the dataset. Furthermore, all the selected features are numeric and the preprocessing method applied to the dataset is the standard normalization.
     The resulting dataset contains \texttt{6884} samples, which \textasciitilde \texttt{67\%} are false positives and the remaining are confirmed.
     
   \paragraph{Random Forests}
-    The model used for the classification task is a random forest, an ensemble of random decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Random decision forests correct the habit of decision trees of overfitting. Each tree of the forest is trained on a subset of the features and samples. The hyperparameters of the random forest are optimized and cross-validated using approaches that come from the \texttt{AutoML} research. The following hyperparameters are optimized:
+    The model used for the classification task is a random forest, a bagging ensemble of decision trees. The prediction of the random forest is computed as the mode of each tree's classification. Random forests correct the habit of decision trees of overfitting (by reducing variance, see \texttt{Bias-Variance} tradeoff). Each tree of the forest is trained on a subset of the features. The hyperparameters of the random forest are optimized and cross-validated using approaches that come from the \texttt{AutoML} research. The following hyperparameters are optimized:
     \begin{itemize}
       \item The split criterion (Gini impurity or information gain, see Appendix \ref{appendix:splitcriterions} for details)
-      \item The percentage of features to use for each tree
+      \item The fraction of features to use for each tree
       \item The maximum depth of each tree
       \item The minimum number of samples required to split an internal node
       \item The minimum number of samples to be at a leaf node
@@ -58,11 +58,11 @@
     \item Hybrid Approaches (like \texttt{BOHB} \cite{bohb})
   \end{itemize}
 
-  The simplest algorithm is \texttt{Random Search}. It works well if the hyperparameters search space is not too big. \texttt{Random Search} is expensive because each evaluation of the score function is done on models completely built from scratch. So, each evaluation of the score function on some randomly selected hyperparameters will use the same amount of resources, even if some hyperparameters of the search space obtain a very low score. The idea behind \texttt{Hyperband} is that it's better to save up resources on these hyperparamters configurations that doesn't obtain a sufficiently good score by gradually building more complex models over time.
+  The simplest algorithm is \texttt{Random Search} and it works well if the hyperparameters search space is not too big. \texttt{Random Search} is expensive because each evaluation of the score function is done on models completely built from scratch. So, each evaluation of the score function on some randomly selected hyperparameters will use the same amount of resources, even if some hyperparameters of the search space obtain a very low score. The idea behind \texttt{Hyperband} is that it's better to save up resources on these hyperparamters configurations that doesn't obtain a sufficiently good score by gradually building more complex models over time.
   
   As we said before we refer to budget as the computational cost of cross-validating a certain model. For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees.
 
-  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of the budget $R$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$. The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}. The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$. The problem is to determinate the number of initial random points of the hyperparameters space to sample. To resolve this issue we execute the previous discussed algorithm multiple times using less and less initial random points and using an higher starting budget.
+  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points in the hyperparameters space and cross-validating them using only a fraction of the budget $R$. After that we pick a fraction $1/\eta$ of the best models. In this way we discard the models that don't obtain a sufficiently good score saving up computational resources. After that we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$. The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}. The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$. The remaining problem is to determinate the number of initial random points of the hyperparameters space to sample. To resolve this issue we execute the discussed algorithm multiple times using less and less initial random points and using an higher starting budget.
 
   Even if it is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others. The following algorithm shows an implementation of $Hyperband$.
   
@@ -89,7 +89,7 @@
     \end{algorithmic}
   \end{algorithm}
 
-  In our case the model $L$ is a random forest. As said before, the budget is the maximum number of trees that the final random forest will have. The choice of the score $S$ is dependent from the target task. For simplicity we use the $F_{1}$ score (i.e. we want to maximize both \textit{Precision} and \textit{Recall}). In this work the hyperparameters search space can be defined formally as:
+  In our case the model $L$ is a random forest. As said before, the budget is the maximum number of trees that the final random forest will have. The choice of the score $S$ is dependent from the target task. For simplicity the $F_{1}$ score is used (i.e. we want to maximize both \textit{Precision} and \textit{Recall}). In this work the hyperparameters search space can be defined formally as:
   \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split Criterion}} \times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
   \[\times \overbrace{\mathbb{N}^{*}}^{\text{Max depth}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples to split}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples at leaf}}\]
   For obvious reasons only a subset of this space can be explored. Table \ref{table:hyperparameters} shows the subset of the search space used in this work.
@@ -124,7 +124,7 @@
   
   As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
 
-  In the end we present Table \ref{table:importances} that shows the importances of the first five out eighteen features used.
+  At contrary of other models, like neural networks, that are \textit{black-box} models, random forests is a \textit{white-box} model: the predictions can be explained deeply and it is possible to evaluate the importance of each feature used for predictions. In the end we present Table \ref{table:importances} that shows the importances of the first five out fifteen features used.
 
   \begin{table}
     \centering
