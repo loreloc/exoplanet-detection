@@ -31,7 +31,7 @@
     The dataset used in this work is the cumulative list of the \texttt{Kepler Object of Interest} (\texttt{KOI}) tables that come from the \texttt{NASA Kepler} project of discovering exoplanets.
     The dataset is composed by a list of examples regarding exoplanets. Each example have a label indicating if the corresponding exoplanet is candidate, false positive or confirmed. The provided dataset consists of a lot of heterogeneous features. For the classification task the selected features can be found in Appendix \ref{appendix:features}. The candidate exoplanets (i.e. the exoplanets which existence is uncertain) are discarded in order to reduce noise and improve the learning process.
     For simplicity all the examples having null values are removed from the dataset. Furthermore, all the selected features are numeric and the preprocessing method applied to the dataset is the standard normalization.
-    The resulting dataset contains \texttt{6884} samples, which \textasciitilde \texttt{67\%} are false positives and the remaining are confirmed.
+    The resulting dataset contains \texttt{6399} samples, which approximately \textasciitilde \texttt{66\%} are false positives and the remaining are confirmed.
     
   \paragraph{Random Forests}
     The model used for the classification task is a random forest, a bagging ensemble of decision trees. The prediction of the random forest is computed as the mode of the predictions made by the decision trees. Each tree of the forest is trained on a subset of the features. Random forests correct the habit of decision trees of overfitting on their training set. In fact decision trees tend to overfit their training sets because they have a low bias but an high variance. So, random forests generally obtain a better performance because they reduce the variance, with a little increase of bias due to the \texttt{Bias-Variance} tradeoff. The hyperparameters of the random forest are optimized and cross-validated using approaches that come from the \texttt{AutoML} research. The following hyperparameters are optimized:
@@ -120,7 +120,7 @@
   \end{table}
 
 \section{Conclusion}
-  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall}. As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low. At contrary of other models, like neural networks, that are \textit{black-box} models, random forests is a \textit{white-box} model: the predictions can be explained deeply and it is possible to evaluate the importance of each feature used for predictions. In the end we present Table \ref{table:importances} that shows the importances of the first five out fifteen features used.
+  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall}. As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low. At contrary of other models, like neural networks, that are \textit{black-box} models, random forests are a \textit{white-box} model: the predictions can be explained deeply and it is possible to evaluate the importance of each feature used for predictions. In the end we present Table \ref{table:importances} that shows the importances of the first five most important features.
 
   \begin{table}
     \centering
@@ -128,13 +128,15 @@
       \hline
       Model & Precision & Recall & $F_{1}$  \\
       \hline\hline
-      k-NN & 0.700 & 0.832 & 0.757 \\
+      k-NN & 0.696 & 0.816 & 0.747 \\
       \hline
-      SVC & 0.775& 0.854 & 0.808 \\
+      SVC & 0.791& 0.845 & 0.813 \\
       \hline
-      2-layer NN & 0.830 & 0.852 & 0.838 \\
+      2-layer NN & 0.840 & 0.863 & 0.849 \\
       \hline
-      \textbf{Random Forest} \texttt{w/Hyperband} & \textbf{0.866} & \textbf{0.874} & \textbf{0.870} \\
+      Random Forest & 0.871 & 0.843 & 0.850 \\
+      \hline
+      \textbf{Random Forest w/Hyperband} & \textbf{0.877} & \textbf{0.902} & \textbf{0.889} \\
       \hline
     \end{tabular}
     \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=216$ and $\eta=3$ are used.}
@@ -143,7 +145,7 @@
   
   \begin{table}
     \centering
-    \begin{tikzpicture}[scale=1.67]
+    \begin{tikzpicture}[scale=1.5]
       \draw[thick] (0, 0) -- (2, 0);
       \draw[thick] (0, 0) -- (0, 2);
       \draw[thick] (2, 2) -- (2, 0);
@@ -156,10 +158,10 @@
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      \coordinate[label={\textbf{402}}] (PP) at (0.5, 1.33);
-      \coordinate[label={ 58}] (NP) at (0.5, 0.33);
-      \coordinate[label={ 62}] (PN) at (1.5, 1.33);
-      \coordinate[label={\textbf{855}}] (NN) at (1.5, 0.33);
+      \coordinate[label={\textbf{398}}] (TP) at (0.5, 1.33);
+      \coordinate[label={ 43}] (FN) at (0.5, 0.33);
+      \coordinate[label={ 56}] (FP) at (1.5, 1.33);
+      \coordinate[label={\textbf{783}}] (TN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
@@ -171,11 +173,11 @@
     \hline
     Feature \# & Description & Importance \\
     \hline\hline
-    5 & Planetary Radius & 0.276 \\
-    1 & Orbital Period & 0.162 \\
-    4 & Fitted Stellar Density & 0.087 \\
-    3 & Transit Depth & 0.085 \\
-    6 & Inclination & 0.071 \\
+    5 & Planetary Radius & 0.268 \\
+    1 & Orbital Period & 0.122 \\
+    3 & Transit Depth & 0.097 \\
+    4 & Fitted Stellar Density & 0.076 \\
+    6 & Inclination & 0.074 \\
     \hline
     \end{tabular}
     \caption{Features importances in descending order.}
@@ -185,27 +187,32 @@
 \appendix
 \appendixpage
 
-\section{Exoplanet Features}
+\section{Exoplanet Selected Features}
   \label{appendix:features}
-  \begin{multicols}{2}
-    \begin{enumerate}
-      \item Orbital Period [$days$]
-      \item Transit Duration [$hrs$]
-      \item Transit Depth [$ppm$]
-      \item Fitted Stellar Density [$g/cm^{3}$]
-      \item Planetary Radius [$Earth\:radii$]
-      \item Inclination [$deg$]
-      \item Equilibrium Temperature [$K$]
-      \item Insolation Flux [$Earth\:flux$]
-      \item Stellar Effective Temperature [$K$]
-      \item Stellar Surface Gravity [$\log_{10}(cm/s^{2})$]
-      \item Stellar Radius [$Solar\:radii$]
-      \item Stellar Mass [$Solar\:mass$]
-      \item RA [$decimal\:degrees$]
-      \item Dec [$decimal\:degrees$]
-      \item Kepler-band [$mag$]
-    \end{enumerate}
-  \end{multicols}
+  \begin{enumerate}
+    \item Orbital Period [$days$]
+    \item Transit Duration [$hrs$]
+    \item Transit Depth [$ppm$]
+    \item Fitted Stellar Density [$g/cm^{3}$]
+    \item Planetary Radius [$Earth\:radii$]
+    \item Inclination [$deg$]
+    \item Equilibrium Temperature [$K$]
+    \item Insolation Flux [$Earth\:flux$]
+    \item Stellar Effective Temperature [$K$]
+    \item Stellar Surface Gravity [$\log_{10}(cm/s^{2})$]
+    \item Stellar Radius [$Solar\:radii$]
+    \item Stellar Mass [$Solar\:mass$]
+    \item RA [$decimal\:degrees$]
+    \item Dec [$decimal\:degrees$]
+    \item Kepler-band [$mag$]
+    \item g-band [$mag$]
+    \item r-band [$mag$]
+    \item i-band [$mag$]
+    \item z-band [$mag$]
+    \item J-band [$mag$]
+    \item H-band [$mag$]
+    \item K-band [$mag$]
+  \end{enumerate}
 
 \section{Decision tree split criterions}
   \label{appendix:splitcriterions}
