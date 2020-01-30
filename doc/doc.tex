@@ -120,7 +120,7 @@
   \end{table}
 
 \section{Conclusion}
-  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall}. As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low. At contrary of other models, like neural networks, that are \textit{black-box} models, random forests are a \textit{white-box} model: the predictions can be explained deeply and it is possible to evaluate the importance of each feature used for predictions. In the end we present Table \ref{table:importances} that shows the importances of the first five most important features.
+  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall}. As you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low. At contrary of other models, like neural networks, that are \textit{black-box} models, random forests are \textit{white-box} models: the predictions can be explained deeply and it is possible to evaluate the importance of each feature used for predictions. In the end we present Table \ref{table:importances} that shows the importances of the first five most important features.
 
   \begin{table}
     \centering
@@ -136,7 +136,7 @@
       \hline
       Random Forest & 0.871 & 0.843 & 0.850 \\
       \hline
-      \textbf{Random Forest w/Hyperband} & \textbf{0.877} & \textbf{0.902} & \textbf{0.889} \\
+      \textbf{Random Forest w/HB} & \textbf{0.877} & \textbf{0.902} & \textbf{0.889} \\
       \hline
     \end{tabular}
     \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=216$ and $\eta=3$ are used.}
