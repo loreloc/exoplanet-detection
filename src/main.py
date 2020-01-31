@@ -1,11 +1,8 @@
 import numpy as np
 import sklearn as sk
 import sklearn.model_selection
-import hpbandster.core.nameserver as hpns
-import hpbandster.core.result as hpres
-from hpbandster.optimizers import HyperBand
-
 from rfc_worker import RFCWorker
+from hb_optimizer import HBOptimizer
 from metrics import show_metrics
 from koi_dataset import load_koi_dataset
 
@@ -30,40 +27,23 @@ x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
 	x_data, y_data, test_size=0.20, stratify=y_data
 )
 
-# Start a nameserver for hyperparameters optimization
-nameserver = hpns.NameServer(run_id=PROJECT_NAME, host=LOCALHOST, port=None)
-nameserver.start()
-
-# Start the workers
-workers = []
-for i in range(n_workers):
-	w = RFCWorker(
-		x_train, y_train, nameserver=LOCALHOST, run_id=PROJECT_NAME, id=i
-	)
-	w.run(background=True)
-	workers.append(w)
-
-# Get the hyperparameters configuration space
-hp_space = workers[0].get_configspace()
-
-# Run an HyperBand optimizer
-hb = HyperBand(
-	configspace=hp_space, run_id=PROJECT_NAME,
-	min_budget=min_budget, max_budget=max_budget
+# Initialize the optimizer
+optimizer = HBOptimizer(
+	LOCALHOST, PROJECT_NAME, worker=RFCWorker,
+	min_budget=min_budget, max_budget=max_budget, n_iterations=n_iterations
 )
-result = hb.run(n_iterations=n_iterations, min_n_workers=n_workers)
 
-# Shutdown the optimizer and the nameserver
-hb.shutdown(shutdown_workers=True)
-nameserver.shutdown()
+# Start the optimizer
+optimizer.start()
 
-# Get the best model configuration found
-id2config = result.get_id2config_mapping()
-incumbent = result.get_incumbent_id()
-config = id2config[incumbent]['config']
-print(config)
+# Run the optimizer
+config = optimizer.run(n_workers, x_train, y_train)
+
+# Close the optimizer
+optimizer.close()
 
 # Build and train the best model
+print(config)
 rfc = RFCWorker.build(config, max_budget)
 rfc.fit(x_train, y_train)
 

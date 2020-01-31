@@ -12,7 +12,6 @@ class RFCWorker(Worker):
 		super().__init__(*args, **kwargs)
 		self.x_train = x_train
 		self.y_train = y_train
-		(self.num_samples, self.num_features) = x_train.shape
 
 	# Cross-validate a random forest hyperparameters configuration
 	def compute(self, config, budget, **kwargs):
@@ -28,7 +27,8 @@ class RFCWorker(Worker):
 		})
 
 	# Get the random forest hyperparameters configuration space
-	def get_configspace(self):
+	@staticmethod
+	def get_configspace():
 		cs = CS.ConfigurationSpace()
 
 		# The split criterion
@@ -37,8 +37,8 @@ class RFCWorker(Worker):
 		)
 
 		# The maximum percentage of features to use for each tree
-		max_features = CSH.UniformIntegerHyperparameter(
-			name='max_features', lower=2, upper=self.num_features
+		max_features = CSH.UniformFloatHyperparameter(
+			name='max_features', lower=0.0, upper=1.0
 		)
 
 		# The maximum depth
@@ -48,12 +48,12 @@ class RFCWorker(Worker):
 
 		# The minimum number of samples required to split an internal node
 		min_samples_split = CSH.UniformIntegerHyperparameter(
-			name='min_samples_split', lower=2, upper=16
+			name='min_samples_split', lower=2, upper=8
 		)
 
 		# The minimum number of samples required to be at a leaf node
 		min_samples_leaf = CSH.UniformIntegerHyperparameter(
-			name='min_samples_leaf', lower=1, upper=5
+			name='min_samples_leaf', lower=1, upper=4
 		)
 
 		# Add the hyperparameters to the configuration space
