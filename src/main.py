@@ -29,7 +29,7 @@ x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
 
 # Initialize the optimizer
 optimizer = HBOptimizer(
-	LOCALHOST, PROJECT_NAME, worker=RFCWorker,
+	LOCALHOST, PROJECT_NAME, worker_class=RFCWorker,
 	min_budget=min_budget, max_budget=max_budget, n_iterations=n_iterations
 )
 
