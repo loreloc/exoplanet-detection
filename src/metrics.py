@@ -6,9 +6,6 @@ from sklearn.metrics import f1_score
 
 # Print some evaluation metrics
 def show_metrics(rfc, x_test, y_test):
-	# Get the shape of the test set
-	(num_samples, num_features) = x_test.shape
-
 	# Calculate the predictions the test set
 	y_pred = rfc.predict(x_test)
 
