@@ -48,7 +48,7 @@
     For simplicity all the samples having null values are discarded from the dataset.
 
     Furthermore, all the selected features are numeric and the preprocessing method applied to the dataset is the standard normalization.
-    The resulting dataset contains \texttt{6399} samples, which approximately \textasciitilde \texttt{66\%} are false positives and the remaining are confirmed.
+    The resulting dataset contains \texttt{5601} samples, of which only \textasciitilde \texttt{38\%} are confirmed and the remaining are false positives.
     
   \paragraph{Random Forests}
     As described before, the classification task consists to determinate if some numerical characteristics can be attributed to an existing exoplanet.
@@ -172,15 +172,15 @@
     \hline
     Model & Precision & Recall & $F_{1}$  \\
     \hline\hline
-    k-NN & 0.696 & 0.816 & 0.747 \\
+    k-NN & 0.689 & 0.891 & 0.774 \\
     \hline
-    SVC & 0.791& 0.845 & 0.813 \\
+    SVC & 0.805 & 0.887 & 0.842 \\
     \hline
-    2-layer NN & 0.840 & 0.863 & 0.849 \\
+    Random Forest & \underline{0.932} & 0.891 & 0.910 \\
     \hline
-    Random Forest & 0.871 & 0.843 & 0.850 \\
+    2-layer NN & 0.919 & \underline{0.926} & 0.922 \\
     \hline
-    \textbf{Random Forest w/HB} & \textbf{0.882} & \textbf{0.900} & \textbf{0.891} \\
+    \textbf{Random Forest w/HB} & \textbf{0.945} & \textbf{0.929} & \textbf{0.937} \\
     \hline
   \end{tabular}
   \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=216$ and $\eta=3$ are used.}
@@ -208,10 +208,10 @@
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      \coordinate[label={\textbf{397}}] (TP) at (0.5, 1.33);
-      \coordinate[label={ 44}] (FN) at (0.5, 0.33);
-      \coordinate[label={ 53}] (FP) at (1.5, 1.33);
-      \coordinate[label={\textbf{786}}] (TN) at (1.5, 0.33);
+      \coordinate[label={\textbf{392}}] (TP) at (0.5, 1.33);
+      \coordinate[label={ 30}] (FN) at (0.5, 0.33);
+      \coordinate[label={ 23}] (FP) at (1.5, 1.33);
+      \coordinate[label={\textbf{676}}] (TN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
@@ -221,23 +221,23 @@
 
   For some reason, the planetary radius rappresents the most discriminant feature to determinate if an hypotetical exoplanet is real or a false positive.
   It is possible that objects that have a very small radius can be attributed to measurements noise.
-  It also emerges that even the transit depth and the orbital period are important for the classification.
-  Maybe some orbital periods are not compatible with other features values, like planetary radius or inclination.
-  Lastly we have the calculated inclination of the object and the density of the host star.
-  It's certainly likely that heavy host stars influences the planets that orbits around.
 
   \begin{table}
     \centering
     \begin{tabular}{|c c c|}
-    \hline
-    Feature \# & Description & Importance \\
-    \hline\hline
-    5 & Planetary Radius & 0.226 \\
-    3 & Transit Depth & 0.105 \\
-    1 & Orbital Period & 0.095 \\
-    6 & Inclination & 0.082 \\
-    4 & Fitted Stellar Density & 0.071 \\
-    \hline
+      \hline
+      Feature \# & Description & Importance \\
+      \hline\hline
+      5 & Planetary Radius & 0.2608 \\
+      \hline
+      26 & FW Source $\Delta\alpha$ & 0.1593 \\
+      \hline
+      27 & FW Source $\Delta\delta$ & 0.1120 \\
+      \hline
+      1 & Orbital Period & 0.0756 \\
+      \hline
+      4 & Fitted Stellar Density & 0.0599 \\
+      \hline
     \end{tabular}
     \caption{Features importances in descending order.}
     \label{table:importances}
@@ -248,31 +248,40 @@
 \appendixpage
 
 \section{Exoplanet Selected Features}
-  \label{appendix:features}
-  \begin{enumerate}
-    \item Orbital Period [$days$]
-    \item Transit Duration [$hrs$]
-    \item Transit Depth [$ppm$]
-    \item Fitted Stellar Density [$g/cm^{3}$]
-    \item Planetary Radius [$Earth\:radii$]
-    \item Inclination [$deg$]
-    \item Equilibrium Temperature [$K$]
-    \item Insolation Flux [$Earth\:flux$]
-    \item Stellar Effective Temperature [$K$]
-    \item Stellar Surface Gravity [$\log_{10}(cm/s^{2})$]
-    \item Stellar Radius [$Solar\:radii$]
-    \item Stellar Mass [$Solar\:mass$]
-    \item RA [$decimal\:degrees$]
-    \item Dec [$decimal\:degrees$]
-    \item Kepler-band [$mag$]
-    \item g-band [$mag$]
-    \item r-band [$mag$]
-    \item i-band [$mag$]
-    \item z-band [$mag$]
-    \item J-band [$mag$]
-    \item H-band [$mag$]
-    \item K-band [$mag$]
-  \end{enumerate}
+  \begin{multicols}{2}
+    \label{appendix:features}
+    \begin{enumerate}
+      \item Orbital Period [$days$]
+      \item Transit Duration [$hrs$]
+      \item Transit Depth [$ppm$]
+      \item Fitted Stellar Density [$g/cm^{3}$]
+      \item Planetary Radius [$Earth\:radii$]
+      \item Orbit Semi-Major Axis [$AU$]
+      \item Inclination [$deg$]
+      \item Equilibrium Temperature [$K$]
+      \item Insolation Flux [$Earth\:flux$]
+      \item Stellar Effective Temperature [$K$]
+      \item Stellar Surface Gravity [$\log_{10}(cm/s^{2})$]
+      \item Stellar Radius [$Solar\:radii$]
+      \item Stellar Mass [$Solar\:mass$]
+      \item RA [$decimal\:degrees$]
+      \item Dec [$decimal\:degrees$]
+      \item Kepler-band [$mag$]
+      \item g-band [$mag$]
+      \item r-band [$mag$]
+      \item i-band [$mag$]
+      \item z-band [$mag$]
+      \item J-band [$mag$]
+      \item H-band [$mag$]
+      \item K-band [$mag$]
+      \item FW Source $\alpha$ [$hrs$]
+      \item FW Source $\delta$ [$deg$]
+      \item FW Source $\Delta\alpha$ [$sec$]
+      \item FW Source $\Delta\delta$ [$arcsec$]
+      \item FW $\Delta\alpha$ [$sec$]
+      \item FW $\Delta\delta$ [$arcsec$]
+    \end{enumerate}
+  \end{multicols}
 
 \section{Decision tree split criterions}
   \label{appendix:splitcriterions}

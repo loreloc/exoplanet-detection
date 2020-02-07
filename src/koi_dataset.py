@@ -9,8 +9,9 @@ def load_koi_dataset(nrows=None):
     # Drop useless columns (row ID and KOI name)
     df = df.drop(['loc_rowid', 'kepoi_name'], axis=1)
 
-    # Remove rows having null values
+    # Remove samples having null values
     df = df.dropna(axis=0)
+
     # Remove rows having KOI disposition uncertain (e.g. CANDIDATE)
     candidateIndexes = df[df.koi_disposition == 'CANDIDATE'].index
     df = df.drop(candidateIndexes, axis=0)
@@ -24,6 +25,9 @@ def load_koi_dataset(nrows=None):
     # Convert to numpy arrays
     x_data = df_x.to_numpy()
     y_data = df_y.to_numpy()
+
+    # print(x_data.shape) # (5601, 29)
+    # print(y_data.mean()) # 0.38
 
     # Standardize the features
     scaler = StandardScaler()

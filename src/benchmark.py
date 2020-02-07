@@ -6,8 +6,8 @@ from sklearn.model_selection import StratifiedKFold
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from koi_dataset import load_koi_dataset
 
 seed = 1234
@@ -18,8 +18,8 @@ x_data, y_data = load_koi_dataset()
 models = {
     'knn': KNeighborsClassifier(),
     'svc': SVC(),
-    'net': MLPClassifier(),
-    'rfc': RandomForestClassifier()
+    'rfc': RandomForestClassifier(),
+    'net': MLPClassifier()
 }
 
 cv = StratifiedKFold(5)
