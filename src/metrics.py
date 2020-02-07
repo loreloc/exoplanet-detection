@@ -22,8 +22,8 @@ def show_metrics(rfc, x_test, y_test):
 	print('Confusion Matrix:')
 	print(cm)
 
-	# Compute and print the first five most important features
+	# Compute and print the five most important features
 	importances = rfc.feature_importances_
 	indices = np.argsort(importances)[::-1][:5]
 	print('Features Importances:')
-	print(list(zip(indices, importances[indices])))
+	print(list(zip(map(lambda i:i+1, indices), importances[indices])))

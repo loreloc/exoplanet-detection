@@ -26,8 +26,14 @@ def load_koi_dataset(nrows=None):
     x_data = df_x.to_numpy()
     y_data = df_y.to_numpy()
 
-    # print(x_data.shape) # (5601, 29)
-    # print(y_data.mean()) # 0.38
+    # Print some statistics
+    #print(x_data.shape) # (5860, 23)
+    #print(y_data.mean()) # 0.38
+    #import matplotlib.pyplot as plt
+    #plt.matshow(df_x.corr())
+    #plt.colorbar()
+    #plt.show()
+    #quit()
 
     # Standardize the features
     scaler = StandardScaler()

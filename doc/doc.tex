@@ -7,14 +7,17 @@
 \usepackage{graphicx}
 \usepackage{multicol}
 \usepackage{appendix}
+\usepackage{pgfplots}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 
+\pgfplotsset{compat=1.16}
+
 \date{}
-\title{Exoplanets detection using \\ auto-tuned random forest}
-\author{Lorenzo Loconte}
+\title{Exoplanets detection using \\ Auto-Tuned Random Forest}
+\author{Lorenzo Loconte, 683124}
 
 \begin{document}
 
@@ -48,7 +51,7 @@
     For simplicity all the samples having null values are discarded from the dataset.
 
     Furthermore, all the selected features are numeric and the preprocessing method applied to the dataset is the standard normalization.
-    The resulting dataset contains \texttt{5601} samples, of which only \textasciitilde \texttt{38\%} are confirmed and the remaining are false positives.
+    The resulting dataset contains \texttt{5860} samples, of which only \textasciitilde \texttt{38\%} are confirmed and the remaining are false positives.
     
   \paragraph{Random Forests}
     As described before, the classification task consists to determinate if some numerical characteristics can be attributed to an existing exoplanet.
@@ -172,15 +175,15 @@
     \hline
     Model & Precision & Recall & $F_{1} \downarrow$  \\
     \hline\hline
-    k-NN & 0.689 & 0.891 & 0.774 \\
+    k-NN & 0.777 & \underline{0.949} & 0.853 \\
     \hline
-    SVC & 0.805 & 0.887 & 0.842 \\
+    SVC & 0.874 & 0.946 & 0.907 \\
     \hline
-    Random Forest & \underline{0.932} & 0.891 & 0.910 \\
+    Random Forest & \underline{0.943} & 0.919 & \underline{0.930} \\
     \hline
-    2-layer NN & 0.919 & \underline{0.926} & \underline{0.922} \\
+    2-layer NN & 0.924 & 0.936 & \underline{0.930} \\
     \hline
-    \textbf{Random Forest w/HB} & \textbf{0.945} & \textbf{0.929} & \textbf{0.937} \\
+    \textbf{Random Forest w/HB} & 0.933 & \textbf{0.945} & \textbf{0.939} \\
     \hline
   \end{tabular}
   \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=216$ and $\eta=3$ are used.}
@@ -208,46 +211,57 @@
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      \coordinate[label={\textbf{392}}] (TP) at (0.5, 1.33);
-      \coordinate[label={ 30}] (FN) at (0.5, 0.33);
-      \coordinate[label={ 23}] (FP) at (1.5, 1.33);
-      \coordinate[label={\textbf{676}}] (TN) at (1.5, 0.33);
+      \coordinate[label={\textbf{416}}] (TP) at (0.5, 1.33);
+      \coordinate[label={ 24}] (FN) at (0.5, 0.33);
+      \coordinate[label={ 30}] (FP) at (1.5, 1.33);
+      \coordinate[label={\textbf{702}}] (TN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
   \end{table}
 
-  In the end we present Table \ref{table:importances} that shows the importances of the first five most important features.
-
-  For some reason, the planetary radius rappresents the most discriminant feature to determinate if an hypotetical exoplanet is real or a false positive.
-  It is possible that objects that have a very small radius can be attributed to measurements noise.
-
-  \begin{table}
+  \begin{figure}
     \centering
-    \begin{tabular}{|c c c|}
-      \hline
-      Feature \# & Description & Importance \\
-      \hline\hline
-      5 & Planetary Radius & 0.2608 \\
-      \hline
-      26 & FW Source $\Delta\alpha$ & 0.1593 \\
-      \hline
-      27 & FW Source $\Delta\delta$ & 0.1120 \\
-      \hline
-      1 & Orbital Period & 0.0756 \\
-      \hline
-      4 & Fitted Stellar Density & 0.0599 \\
-      \hline
-    \end{tabular}
-    \caption{Features importances in descending order.}
-    \label{table:importances}
-  \end{table}
+    \begin{tikzpicture}
+      \begin{axis}[
+        ybar,
+        ylabel=Importance,
+        xlabel=Feature \#,
+        symbolic x coords={23, 5, 3, 6, 1},
+        bar width=16pt,
+        ymin=0.0, ymax=0.3,
+        ytick={0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30},
+        yticklabel style={/pgf/number format/fixed, /pgf/number format/fixed zerofill}
+      ]
+        \addplot[style={fill=white}] coordinates {
+          (23, 0.2746)
+          (5, 0.2261)
+          (3, 0.0608)
+          (6, 0.0522)
+          (1, 0.0507)
+        };
+      \end{axis}
+    \end{tikzpicture}
+    \caption{Most important features importances.}
+    \label{figure:importances}
+  \end{figure}
+
+  In the end we present Figure \ref{figure:importances} that shows the importances of the most important features.
+
+  The most important feature is PRF $\Delta\theta_{SQ}$, that basically is the angular offset on the plane of the sky between the centroid of the star and the calculated centroid of the star during the passage of the object of interest.
+  It's very important because a lot of false positives are due to the tranist of another star in binary systems.
+  So, if this value is big it's most likely that the object of interest is not an exoplanet.
+  For some reason, the planetary radius rappresents another discriminant feature to determinate if an hypotetical exoplanet is real or a false positive.
+  It is possible that objects that have a very small radius can be attributed to measurements noise.
 
 \clearpage
 \appendix
 \appendixpage
 
 \section{Exoplanet Selected Features}
+  The documentation of the following exoplanet selected features can be found at \texttt{https://exoplanetarchive.ipac.caltech.edu}.
+  However most of them are auto-explicative.
+  The features used in this work are regarding the observed star, the processed features of the object of interest and various spectrometrical metrics.
   \begin{multicols}{2}
     \label{appendix:features}
     \begin{enumerate}
@@ -256,30 +270,24 @@
       \item Transit Depth [$ppm$]
       \item Fitted Stellar Density [$g/cm^{3}$]
       \item Planetary Radius [$Earth\:radii$]
-      \item Orbit Semi-Major Axis [$AU$]
       \item Inclination [$deg$]
       \item Equilibrium Temperature [$K$]
       \item Insolation Flux [$Earth\:flux$]
       \item Stellar Effective Temperature [$K$]
       \item Stellar Surface Gravity [$\log_{10}(cm/s^{2})$]
+      \item Stellar Metallicity [$dex$]
       \item Stellar Radius [$Solar\:radii$]
       \item Stellar Mass [$Solar\:mass$]
       \item RA [$decimal\:degrees$]
       \item Dec [$decimal\:degrees$]
       \item Kepler-band [$mag$]
-      \item g-band [$mag$]
-      \item r-band [$mag$]
-      \item i-band [$mag$]
-      \item z-band [$mag$]
-      \item J-band [$mag$]
-      \item H-band [$mag$]
-      \item K-band [$mag$]
-      \item FW Source $\alpha$ [$hrs$]
-      \item FW Source $\delta$ [$deg$]
       \item FW Source $\Delta\alpha$ [$sec$]
       \item FW Source $\Delta\delta$ [$arcsec$]
       \item FW $\Delta\alpha$ [$sec$]
       \item FW $\Delta\delta$ [$arcsec$]
+      \item PRF $\Delta\alpha_{SQ}$ [$arcsec$]
+      \item PRF $\Delta\delta_{SQ}$ [$arcsec$]
+      \item PRF $\Delta\theta_{SQ}$ [$arcsec$]
     \end{enumerate}
   \end{multicols}
 
