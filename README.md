@@ -1,3 +1,3 @@
-# Exoplanets detection using auto-tuned random forest
+# Exoplanets detection using Auto-Tuned Random Forest
 ## Abstract
 This work consists of identifying exoplanets using random forest. The model is trained using the data that comes from the __NASA Kepler__ project of discovering exoplanets (i.e. planets outside our solar system). The hyperparameters are automatically optimized with techniques that come from the __AutoML__ research. In fact, the hyperparameters of the model are optimized and cross-validated with __Hyperband__, a simple yet effective and scalable method for hyperparameters optimization.
