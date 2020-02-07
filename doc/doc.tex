@@ -36,7 +36,7 @@
     Sometimes these object are actually exoplanets but it's common they can be something else like asteroids or even another star.
     Sometimes they are just false positives due to noise in the measurements.
 
-    The goal of this work is to build a model (using supervisioned machine learning) that is capable to determinate if a hypotetical exoplanet can be confirmed or is just false positives.
+    The goal of this work is to build a model (using supervisioned machine learning) that is capable to determinate if a hypotetical exoplanet can be confirmed or is just false positive.
     The dataset used is the cumulative list of \texttt{Kepler Object of Interest} (\texttt{KOI}) tables that come from the \texttt{NASA Kepler} project of discovering exoplanets.
     The complete dataset can be found at \texttt{https://exoplanetarchive.ipac.caltech.edu}.
     The dataset is composed by a list of hypotetical exoplanets.
@@ -135,7 +135,7 @@
   Even if \texttt{Hyperband} is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others.
 
   In our case the model $L$ is a random forest.
-  As said before, the budget is the maximum number of trees that the final random forest will have.
+  As said before, the budget $R$ is the maximum number of trees that the final random forest will have.
   The choice of the score $S$ is dependent from the task.
   For simplicity the $F_{1}$ score is used (i.e. we want to maximize both \textit{Precision} and \textit{Recall}).
   In this work the hyperparameters search space can be defined formally as:
