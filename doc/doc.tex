@@ -39,9 +39,9 @@
     If a rapid decrease and consequently increase of its luminosity occurs it's most likely that an object passed the way between us and the star.
     Analyzing the variation of luminosity for a certain amount of time we can extrapolate informations like the radius and the orbit eccentricity of the object.
     Sometimes these object are actually exoplanets but it's common they can be something else like asteroids or even another star.
-    Sometimes they are just false positives due to noise in the measurements.
+    Sometimes they are just false positives due to measurements noise.
 
-    The goal of this work is to build a model (using supervisioned \textit{Machine Learning}) that is capable to determinate if a hypotetical exoplanet can be confirmed or is just false positive.
+    The goal of this work is to build a model (using \textit{Supervisioned Machine Learning}) that is capable to determinate if a hypotetical exoplanet can be confirmed or is just false positive.
     The dataset used is the cumulative list of \texttt{Kepler Object of Interest} (\texttt{KOI}) tables that come from the \texttt{NASA Kepler} project of discovering exoplanets.
     The complete dataset can be found at \texttt{https://exoplanetarchive.ipac.caltech.edu}.
     The dataset is composed by a list of hypotetical exoplanets.
@@ -62,7 +62,7 @@
     Random forests correct the habit of decision trees of overfitting on their training set.
     In fact, decision trees tend to overfit their training sets because they have a low bias but an high variance.
 
-    In supervisioned \textit{Machine Learning}, bias consists of errouneous assumptions about the data while variance is a measure of sensitivity to the noise in the training data.
+    In \textit{Supervisioned Machine Learning}, bias consists of errouneous assumptions about the data and variance is a measure of sensitivity to the noise in the training data.
     So, random forests generally obtain better performance.
 
     The law that regulates the bias and variance is called \texttt{Bias-Variance tradeoff} \cite{biasvariance}.
@@ -153,7 +153,7 @@
   The choice of the score $S$ is dependent from the task.
   For simplicity the $F_{1}$ score is used (i.e. we want to maximize both \textit{Precision} and \textit{Recall}).
   In this work the hyperparameters search space can be defined formally as:
-  \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split Criterion}} \quad\times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
+  \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split criterion}} \quad\times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
   \[\overbrace{\mathbb{N}^{*}}^{\text{Max depth}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples to split}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples at leaf}}\]
   For obvious reasons and for the hyperparameters optimization algorithm chosen, only a subset of this space can be explored.
   Table \ref{table:hyperparameters} shows the subset of the hyperparameters search space used in this work.
