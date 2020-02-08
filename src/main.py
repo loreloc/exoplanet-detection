@@ -15,8 +15,8 @@ seed = 1234
 np.random.seed(seed)
 
 # Set the parameters for hyperparameters optimization
-min_budget = 8
-max_budget = 216
+min_budget = 20
+max_budget = 180
 n_iterations = 16
 n_workers = 4
 

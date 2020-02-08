@@ -175,18 +175,18 @@
     \hline
     Model & Precision & Recall & $F_{1} \downarrow$  \\
     \hline\hline
-    k-NN & 0.777 & \underline{0.949} & 0.853 \\
+    k-NN & 0.781 & \underline{0.948} & 0.855 \\
     \hline
-    SVC & 0.874 & 0.946 & 0.907 \\
+    SVC & 0.877 & 0.946 & 0.909 \\
     \hline
-    Random Forest & \underline{0.943} & 0.919 & \underline{0.930} \\
+    2-layer NN & 0.917 & 0.932 & 0.924 \\
     \hline
-    2-layer NN & 0.924 & 0.936 & \underline{0.930} \\
+    Random Forest & \underline{0.938} & 0.916 & \underline{0.926} \\
     \hline
-    \textbf{Random Forest w/HB} & \textbf{0.933} & \textbf{0.945} & \textbf{0.939} \\
+    \textbf{Random Forest w/HB} & \textbf{0.934} & \textbf{0.939} & \textbf{0.937} \\
     \hline
   \end{tabular}
-  \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=216$ and $\eta=3$ are used.}
+  \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=180$ and $\eta=3$ are used.}
   \label{table:benchmark}
 \end{table}
 
@@ -211,10 +211,10 @@
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      \coordinate[label={\textbf{416}}] (TP) at (0.5, 1.33);
-      \coordinate[label={ 24}] (FN) at (0.5, 0.33);
-      \coordinate[label={ 30}] (FP) at (1.5, 1.33);
-      \coordinate[label={\textbf{702}}] (TN) at (1.5, 0.33);
+      \coordinate[label={\textbf{413}}] (TP) at (0.5, 1.33);
+      \coordinate[label={ 27}] (FN) at (0.5, 0.33);
+      \coordinate[label={ 29}] (FP) at (1.5, 1.33);
+      \coordinate[label={\textbf{703}}] (TN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{table:confusion}
@@ -227,18 +227,18 @@
         ybar,
         ylabel=Importance,
         xlabel=Feature \#,
-        symbolic x coords={23, 5, 3, 6, 1},
+        symbolic x coords={21, 5, 3, 19, 20},
         bar width=16pt,
-        ymin=0.0, ymax=0.3,
-        ytick={0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30},
+        ymin=0.0, ymax=0.25,
+        ytick={0.0, 0.05, 0.10, 0.15, 0.20, 0.25},
         yticklabel style={/pgf/number format/fixed, /pgf/number format/fixed zerofill}
       ]
         \addplot[style={fill=white}] coordinates {
-          (23, 0.2746)
-          (5, 0.2261)
-          (3, 0.0608)
-          (6, 0.0522)
-          (1, 0.0507)
+          (21, 0.1887)
+          (5, 0.1591)
+          (3, 0.0724)
+          (19, 0.0601)
+          (20, 0.0589)
         };
       \end{axis}
     \end{tikzpicture}
@@ -281,8 +281,6 @@
       \item RA [$decimal\:degrees$]
       \item Dec [$decimal\:degrees$]
       \item Kepler-band [$mag$]
-      \item FW Source $\Delta\alpha$ [$sec$]
-      \item FW Source $\Delta\delta$ [$arcsec$]
       \item FW $\Delta\alpha$ [$sec$]
       \item FW $\Delta\delta$ [$arcsec$]
       \item PRF $\Delta\alpha_{SQ}$ [$arcsec$]

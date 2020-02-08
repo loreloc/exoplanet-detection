@@ -27,7 +27,7 @@ def load_koi_dataset(nrows=None):
     y_data = df_y.to_numpy()
 
     # Print some statistics
-    #print(x_data.shape) # (5860, 23)
+    #print(x_data.shape) # (5860, 21)
     #print(y_data.mean()) # 0.38
     #import matplotlib.pyplot as plt
     #plt.matshow(df_x.corr())
