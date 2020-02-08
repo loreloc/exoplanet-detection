@@ -17,7 +17,8 @@
 
 \date{}
 \title{Exoplanets detection using \\ Auto-Tuned Random Forest}
-\author{Lorenzo Loconte, 683124}
+
+\author{Lorenzo Loconte \\ \small Knowledge Engeneering Project \\ \small University of Bari Aldo Moro, Department of Informatics}
 
 \begin{document}
 
@@ -29,17 +30,18 @@
   In fact, the hyperparameters of the model are optimized and cross-validated with \texttt{Hyperband}, a simple yet effective and scalable method for hyperparameters optimization.
 \end{abstract}
 
+\clearpage
 \section{Introduction}
   \paragraph{Kepler Object of Interest}
-    Exoplanets are particular planets that can be found outside our solar system which orbit around one star (sometimes even multiple stars).
-    The \texttt{NASA Kepler} project aim to discover these object by looking at some stars and observing their luminosity during time.
+    Exoplanets are particular planets that are situated outside our solar system which orbit around one star (sometimes even multiple stars).
+    The \texttt{NASA Kepler} project aims to discover these objects by looking at some stars and observing their luminosity during time.
     Basically suppose we are observing a star.
     If a rapid decrease and consequently increase of its luminosity occurs it's most likely that an object passed the way between us and the star.
     Analyzing the variation of luminosity for a certain amount of time we can extrapolate informations like the radius and the orbit eccentricity of the object.
     Sometimes these object are actually exoplanets but it's common they can be something else like asteroids or even another star.
     Sometimes they are just false positives due to noise in the measurements.
 
-    The goal of this work is to build a model (using supervisioned machine learning) that is capable to determinate if a hypotetical exoplanet can be confirmed or is just false positive.
+    The goal of this work is to build a model (using supervisioned \textit{Machine Learning}) that is capable to determinate if a hypotetical exoplanet can be confirmed or is just false positive.
     The dataset used is the cumulative list of \texttt{Kepler Object of Interest} (\texttt{KOI}) tables that come from the \texttt{NASA Kepler} project of discovering exoplanets.
     The complete dataset can be found at \texttt{https://exoplanetarchive.ipac.caltech.edu}.
     The dataset is composed by a list of hypotetical exoplanets.
@@ -49,10 +51,9 @@
     
     The candidate exoplanets (i.e. the exoplanets which existence is uncertain) are discarded in order to reduce noise and improve the learning process.
     For simplicity all the samples having null values are discarded from the dataset.
-
     Furthermore, all the selected features are numeric and the preprocessing method applied to the dataset is the standard normalization.
     The resulting dataset contains \texttt{5860} samples, of which only \textasciitilde \texttt{38\%} are confirmed and the remaining are false positives.
-    
+
   \paragraph{Random Forests}
     As described before, the classification task consists to determinate if some numerical characteristics can be attributed to an existing exoplanet.
     The model used for the classification task is a random forest, a bagging ensemble of decision trees.
@@ -60,14 +61,22 @@
     Note that each tree of the forest is trained on a subset of the features.
     Random forests correct the habit of decision trees of overfitting on their training set.
     In fact, decision trees tend to overfit their training sets because they have a low bias but an high variance.
-    In supervisioned machine learning, bias consists of errouneous assumptions about the data while variance is a measure of sensitivity to the noise in the training data.
-    So, random forests generally obtain a better performance, with a little increase of bias, due to the \texttt{Bias-Variance} tradeoff.
-    
+
+    In supervisioned \textit{Machine Learning}, bias consists of errouneous assumptions about the data while variance is a measure of sensitivity to the noise in the training data.
+    So, random forests generally obtain better performance.
+
+    The law that regulates the bias and variance is called \texttt{Bias-Variance tradeoff} \cite{biasvariance}.
+    This law states that models having low bias have an high variance and viceversa.
+    In \textit{Machine Learning} bias and variance corresponds to the models behaviours that we want to regulate in order to minimize the error.
+    An high bias causes \textit{underfitting} while an high variance causes \textit{overfitting}.
+      \[\mathrm{Error}=\mathrm{Bias}^{2}+\mathrm{Variance}+\mathrm{Irreducible\:Error}\]
+
   \paragraph{Hyperparameters}
     Often it's difficult (or nearly impossible) to select the correct hyperparameters that guarantee good performance on some specific datasets.
-    \texttt{AutoML} is a branch of machine learning that try to simplify the process for model selection and hyperparameters optimization.
+    \texttt{AutoML} is a branch of \textit{Machine Learning} that try to simplify the process for model selection and hyperparameters optimization.
     This work focuses on solving the hyperparameters search problem for random forests.
     The algorithm used is \texttt{Hyperband} that, as it'll be shown in the next section, rappresents an evolution of random search designed especially for hyperparameters optimization.
+
     For the hyperparameter optimization algorithm chosen, the number of trees in the random forest is not considered an hyperparameter.
     Furthermore, the following hyperparameters are optimized:
     \begin{itemize}
@@ -84,6 +93,8 @@
   After that we briefly introduce the hyperparameters optimizer used in this work, \texttt{Hyperband}, as described in \cite{hyperband}.
 
   Given a training set $T$, a model $L$ and its hyperparameters search space $\Omega$, the hyperparameters optimization task consists to find an hyperparameters configuration $\omega \in \Omega$ such that the resulting model $L\langle\omega\rangle$ maximizes a certain score $S$ using cross-validation on $T$.
+  Note that most search algorithms don't converge to the global maximum.
+  So, the goodness of the hyperparameters found is dependent of the amount of resources we have.
 
   There are a lot of different techniques for hyperaparameters optimization, some of them are the following:
   \begin{itemize}
@@ -103,11 +114,6 @@
   Note that we refer to budget as the computational cost of cross-validating a certain model.
   For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees.
 
-  Algorithm \ref{algorithm:hyperband} shows an implementation of \texttt{Hyperband} as described now.
-  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points (for example using the uniform distribution) in the hyperparameters space and cross-validating them using only a fraction of the budget $R$.
-  After that we pick a fraction $1/\eta$ of the best models.
-  In this way we discard the models that didn't obtain a sufficiently good score saving up computational resources.
-  
   \begin{algorithm}
     \caption{Hyperband algorithm for hyperparameters optimization}
     \label{algorithm:hyperband}
@@ -129,6 +135,11 @@
     \end{algorithmic}
   \end{algorithm}
 
+  Algorithm \ref{algorithm:hyperband} shows an implementation of \texttt{Hyperband} as described now.
+  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points (for example using the uniform distribution) in the hyperparameters space and cross-validating them using only a fraction of the budget $R$.
+  After that we pick a fraction $1/\eta$ of the best models.
+  In this way we discard the models that didn't obtain a sufficiently good score saving up computational resources.
+
   After that, we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$.
   The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}.
   The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$.
@@ -144,20 +155,20 @@
   In this work the hyperparameters search space can be defined formally as:
   \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split Criterion}} \quad\times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
   \[\overbrace{\mathbb{N}^{*}}^{\text{Max depth}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples to split}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples at leaf}}\]
-  For obvious reasons only a subset of this space can be explored.
+  For obvious reasons and for the hyperparameters optimization algorithm chosen, only a subset of this space can be explored.
   Table \ref{table:hyperparameters} shows the subset of the hyperparameters search space used in this work.
 
-  \begin{table}
+  \begin{table}[b]
     \centering
     \begin{tabular}{|c c|}
       \hline
       Hyperparameters & Values \\
       \hline\hline
-      Split Criterions & $\{gini, entropy\}$ \\
+      Split criterions & $\{gini, entropy\}$ \\
       \hline
       Features fraction & $(0, 1]$ \\
       \hline
-      Maximum Depth & $\{8,9,...,32\}$ \\
+      Maximum depth & $\{8,9,...,32\}$ \\
       \hline
       Minimum samples to split & $\{2,3,...,8\}$ \\
       \hline
@@ -169,36 +180,43 @@
   \end{table}
 
 \section{Conclusion}
-\begin{table}
-  \centering
-  \begin{tabular}{|c c c c|}
-    \hline
-    Model & Precision & Recall & $F_{1} \downarrow$  \\
-    \hline\hline
-    k-NN & 0.781 & \underline{0.948} & 0.855 \\
-    \hline
-    SVC & 0.877 & 0.946 & 0.909 \\
-    \hline
-    2-layer NN & 0.917 & 0.932 & 0.924 \\
-    \hline
-    Random Forest & \underline{0.938} & 0.916 & \underline{0.926} \\
-    \hline
-    \textbf{Random Forest w/HB} & \textbf{0.934} & \textbf{0.939} & \textbf{0.937} \\
-    \hline
-  \end{tabular}
-  \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=180$ and $\eta=3$ are used.}
-  \label{table:benchmark}
-\end{table}
-
+  In this section we analyze the results of the model chosen comparing it to other models.
   As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall} respect to other models.
 
-  Furthermore, as you can see from Table \ref{table:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
+  Furthermore, as you can see from Figure \ref{figure:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
 
-  At contrary of other models, like neural networks, that are \textit{black-box} models, random forests are \textit{white-box} models: the predictions can be explained and it's possible to evaluate the importance of each feature used.
+  Models like neural networks and support vector machines are said \textit{black-box} models.
+  It means that the predictions cannot be explained and the features importances cannot be evaluated easily.
+  At contrary, random forests are said \textit{white-box} models.
+  So, the predictions can be explained deeply and it's possible to evaluate the importance of each feature used.
+
+  In \textit{Artificial Intelligence} the explainability of a model is important because it guarantees transparency.
+  Furthermore, in \textit{Machine Learning}, explainable models can reveal hidden knowledge about the data that isn't known at prior.
 
   \begin{table}
     \centering
-    \begin{tikzpicture}[scale=1.67]
+    \begin{tabular}{|c c c c|}
+      \hline
+      Model & Precision & Recall & $F_{1} \downarrow$  \\
+      \hline\hline
+      k-NN & 0.781 & \underline{0.948} & 0.855 \\
+      \hline
+      SVC & 0.877 & 0.946 & 0.909 \\
+      \hline
+      2-layer NN & 0.917 & 0.932 & 0.924 \\
+      \hline
+      Random Forest & \underline{0.938} & 0.916 & \underline{0.926} \\
+      \hline
+      \textbf{Random Forest w/HB} & \textbf{0.934} & \textbf{0.939} & \textbf{0.937} \\
+      \hline
+    \end{tabular}
+    \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=180$ and $\eta=3$ are used.}
+    \label{table:benchmark}
+  \end{table}
+
+  \begin{figure}
+    \centering
+    \begin{tikzpicture}[scale=1.85]
       \draw[thick] (0, 0) -- (2, 0);
       \draw[thick] (0, 0) -- (0, 2);
       \draw[thick] (2, 2) -- (2, 0);
@@ -217,8 +235,18 @@
       \coordinate[label={\textbf{703}}] (TN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
-    \label{table:confusion}
-  \end{table}
+    \label{figure:confusion}
+  \end{figure}
+
+  In the end we present Figure \ref{figure:importances} that shows the importances of the five most important features.
+
+  The most important feature is PRF $\Delta\theta_{SQ}$, that basically is the angular offset on the plane of the sky between the centroid of the star and the calculated centroid of the star during the passage of the object of interest.
+  It's very important because a lot of false positives are due to the tranist of another star in binary systems.
+  So, if this value is big it's most likely that the object of interest is not an exoplanet.
+  For some reason, the planetary radius rappresents another discriminant feature to determinate if an hypotetical exoplanet is real or a false positive.
+  It is possible that objects that have a very small radius can be attributed to measurements noise.
+
+  In conclusion, we can say that most of the false positive occurrences are attributed to binary star systems and measurements noise.
 
   \begin{figure}
     \centering
@@ -242,17 +270,9 @@
         };
       \end{axis}
     \end{tikzpicture}
-    \caption{Most important features importances.}
+    \caption{Five most important features importances.}
     \label{figure:importances}
   \end{figure}
-
-  In the end we present Figure \ref{figure:importances} that shows the importances of the most important features.
-
-  The most important feature is PRF $\Delta\theta_{SQ}$, that basically is the angular offset on the plane of the sky between the centroid of the star and the calculated centroid of the star during the passage of the object of interest.
-  It's very important because a lot of false positives are due to the tranist of another star in binary systems.
-  So, if this value is big it's most likely that the object of interest is not an exoplanet.
-  For some reason, the planetary radius rappresents another discriminant feature to determinate if an hypotetical exoplanet is real or a false positive.
-  It is possible that objects that have a very small radius can be attributed to measurements noise.
 
 \clearpage
 \appendix
@@ -261,7 +281,7 @@
 \section{Exoplanet Selected Features}
   The documentation of the following exoplanet selected features can be found at \texttt{https://exoplanetarchive.ipac.caltech.edu}.
   However most of them are auto-explicative.
-  The features used in this work are regarding the observed star, the processed features of the object of interest and various spectrometrical metrics.
+  The features used in this work are regarding the observed star, the processed features of the object of interest and various spectrometric metrics.
   \begin{multicols}{2}
     \label{appendix:features}
     \begin{enumerate}
