@@ -5,5 +5,5 @@ The data generated from the __Kepler Telescope__ is analyzed by humans and algor
 The main problem is that a lot of exoplanets are revealed false positives.
 This work consists of identifying exoplanets using random forest, a _Supervised Machine Learning_ model.
 Furthermore, the fitted model is analyzed in order to determine which features are relevant.
-The hyperparameters are automatically optimized with techniques that come from the _AutoML_ research.
+The hyperparameters are automatically optimized with techniques that come from the __AutoML__ research.
 In fact, the hyperparameters of the model are optimized and cross-validated with __Hyperband__, a simple yet effective and scalable method for hyperparameters optimization.
