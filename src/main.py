@@ -15,8 +15,9 @@ seed = 1234
 np.random.seed(seed)
 
 # Set the parameters for hyperparameters optimization
-min_budget = 20
-max_budget = 180
+eta = 3
+min_budget = 8
+max_budget = 216
 n_iterations = 16
 n_workers = 4
 
@@ -29,8 +30,8 @@ x_train, x_test, y_train, y_test = sk.model_selection.train_test_split(
 
 # Initialize the optimizer
 optimizer = HBOptimizer(
-	LOCALHOST, PROJECT_NAME, worker_class=RFCWorker,
-	min_budget=min_budget, max_budget=max_budget, n_iterations=n_iterations
+	LOCALHOST, PROJECT_NAME, RFCWorker,
+	eta, min_budget, max_budget, n_iterations
 )
 
 # Start the optimizer

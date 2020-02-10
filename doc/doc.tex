@@ -18,19 +18,23 @@
 \date{}
 \title{Exoplanets detection using \\ Auto-Tuned Random Forest}
 
-\author{Lorenzo Loconte \\ \small Knowledge Engeneering Project \\ \small University of Bari Aldo Moro, Department of Informatics}
+\author{Lorenzo Loconte \\ \small Knowledge Engineering Project \\ \small University of Bari Aldo Moro, Department of Informatics}
 
 \begin{document}
 
 \maketitle
 \begin{abstract}
-  This work consists of identifying exoplanets using random forest.
-  The model is trained using the data that comes from the \texttt{NASA Kepler} project of discovering exoplanets (i.e. planets outside our solar system).
+  The \texttt{NASA Kepler} project consists of discovering exoplanets (i.e. planets outside our solar system).
+  The data generated from the \texttt{Kepler Telescope} is analyzed by humans and algorithms to discover new exoplanets.
+  The main problem is that a lot of exoplanets are revealed false positives.
+  This work consists of identifying exoplanets using random forest, a \textit{Supervisioned Machine Learning} model.
+  Furthermore, the fitted model is analyzed in order to determine which features are relevant.
   The hyperparameters are automatically optimized with techniques that come from the \texttt{AutoML} research.
   In fact, the hyperparameters of the model are optimized and cross-validated with \texttt{Hyperband}, a simple yet effective and scalable method for hyperparameters optimization.
 \end{abstract}
 
 \clearpage
+
 \section{Introduction}
   \paragraph{Kepler Object of Interest}
     Exoplanets are particular planets that are situated outside our solar system which orbit around one star (sometimes even multiple stars).
@@ -166,13 +170,13 @@
       \hline\hline
       Split criterions & $\{gini, entropy\}$ \\
       \hline
-      Features fraction & $(0, 1]$ \\
+      Features fraction & $[0.2, 0.8]$ \\
       \hline
       Maximum depth & $\{8,9,...,32\}$ \\
       \hline
-      Minimum samples to split & $\{2,3,...,8\}$ \\
+      Minimum samples to split & $\{2,3,...,16\}$ \\
       \hline
-      Minimum samples at a leaf & $\{1,2,...,4\}$ \\
+      Minimum samples at a leaf & $\{1,2,...,8\}$ \\
       \hline
     \end{tabular}
     \caption{The hyperparameters space subset used in this work.}
@@ -207,7 +211,7 @@
       \hline
       Random Forest & \underline{0.938} & 0.916 & \underline{0.926} \\
       \hline
-      \textbf{Random Forest w/HB} & \textbf{0.934} & \textbf{0.939} & \textbf{0.937} \\
+      \textbf{Random Forest w/HB} & \textbf{0.937} & \textbf{0.943} & \textbf{0.940} \\
       \hline
     \end{tabular}
     \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=180$ and $\eta=3$ are used.}
@@ -229,10 +233,10 @@
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      \coordinate[label={\textbf{413}}] (TP) at (0.5, 1.33);
-      \coordinate[label={ 27}] (FN) at (0.5, 0.33);
-      \coordinate[label={ 29}] (FP) at (1.5, 1.33);
-      \coordinate[label={\textbf{703}}] (TN) at (1.5, 0.33);
+      \coordinate[label={\textbf{415}}] (TP) at (0.5, 1.33);
+      \coordinate[label={ 25}] (FN) at (0.5, 0.33);
+      \coordinate[label={ 28}] (FP) at (1.5, 1.33);
+      \coordinate[label={\textbf{704}}] (TN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{figure:confusion}
@@ -255,18 +259,18 @@
         ybar,
         ylabel=Importance,
         xlabel=Feature \#,
-        symbolic x coords={21, 5, 3, 19, 20},
+        symbolic x coords={21, 5, 3, 6, 1},
         bar width=16pt,
-        ymin=0.0, ymax=0.25,
-        ytick={0.0, 0.05, 0.10, 0.15, 0.20, 0.25},
+        ymin=0.0, ymax=0.30,
+        ytick={0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30},
         yticklabel style={/pgf/number format/fixed, /pgf/number format/fixed zerofill}
       ]
         \addplot[style={fill=white}] coordinates {
-          (21, 0.1887)
-          (5, 0.1591)
-          (3, 0.0724)
-          (19, 0.0601)
-          (20, 0.0589)
+          (21, 0.2779)
+          (5, 0.2396)
+          (3, 0.0614)
+          (6, 0.0522)
+          (1, 0.0498)
         };
       \end{axis}
     \end{tikzpicture}

@@ -5,11 +5,12 @@ import hpbandster.core.nameserver as hpns
 class HBOptimizer:
 	# Initialize the optimizer
 	def __init__(self, host, run_id, worker_class,
-			min_budget, max_budget, n_iterations):
+			eta, min_budget, max_budget, n_iterations):
 		self.host = host
 		self.port = None
 		self.run_id = run_id
 		self.worker_class = worker_class
+		self.eta = eta
 		self.min_budget = min_budget
 		self.max_budget = max_budget
 		self.n_iterations = n_iterations
@@ -33,7 +34,7 @@ class HBOptimizer:
 		# Initialize the hyperband optimizer
 		hb = hpopt.HyperBand(
 			configspace=hp_space, run_id=self.run_id,
-			min_budget=self.min_budget, max_budget=self.max_budget
+			eta=self.eta, min_budget=self.min_budget, max_budget=self.max_budget
 		)
 
 		# Start the workers

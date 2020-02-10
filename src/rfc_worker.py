@@ -38,7 +38,7 @@ class RFCWorker(Worker):
 
 		# The maximum percentage of features to use for each tree
 		max_features = CSH.UniformFloatHyperparameter(
-			name='max_features', lower=0.0, upper=1.0
+			name='max_features', lower=0.2, upper=0.8
 		)
 
 		# The maximum depth
@@ -48,12 +48,12 @@ class RFCWorker(Worker):
 
 		# The minimum number of samples required to split an internal node
 		min_samples_split = CSH.UniformIntegerHyperparameter(
-			name='min_samples_split', lower=2, upper=8
+			name='min_samples_split', lower=2, upper=16
 		)
 
 		# The minimum number of samples required to be at a leaf node
 		min_samples_leaf = CSH.UniformIntegerHyperparameter(
-			name='min_samples_leaf', lower=1, upper=4
+			name='min_samples_leaf', lower=1, upper=8
 		)
 
 		# Add the hyperparameters to the configuration space
