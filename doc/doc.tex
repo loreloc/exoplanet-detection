@@ -324,7 +324,7 @@
   \subsection{Information gain}
     Information gain is based on the concept of entropy and information content from information theory.
     For each node of the tree, the information value represents the expected amount of information that would be needed to specify whether a new instance should be classified yes or no, given the example reached that node.
-    Given $T$ the set of training examples, suppose $i\in\{1,2,...,J\}$, where $J$ is the number of classes, and let $p_{i}$ be the faction of items labeled with class $i$ in the training set.
+    Given $T$ the set of training examples and $X$ the selected feature.
     \[IG(T, X)=\mathrm{H}(T)-\mathrm{H}(T|X)=\mathrm{H}(T)-\sum_{x}{\Pr(X=x)\mathrm{H}(T|X=x)}\]
 
 \bibliography{biblio.bib}
