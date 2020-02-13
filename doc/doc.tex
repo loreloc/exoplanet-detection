@@ -243,6 +243,8 @@
   \end{figure}
 
   In the end we present Figure \ref{figure:importances} that shows the importance of the five most important features.
+  In random forests the features importance are calculated by averaging the features importance in each decision tree.
+  For a decision tree the features importance are calculated during the fit and are computed as the normalized total reduction of the criterion brought by each feature. 
 
   The most important feature is PRF $\Delta\theta_{SQ}$ (\texttt{Pixel Response Function}), that basically is the angular offset on the plane of the sky between the centroid of the star and the calculated centroid of the star during the passage of the object of interest.
   It's very important because a lot of false positives are due to the transit of another star in binary systems.
