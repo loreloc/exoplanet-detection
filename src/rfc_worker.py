@@ -41,6 +41,11 @@ class RFCWorker(Worker):
 			name='max_features', lower=0.2, upper=0.8
 		)
 
+		# The maximum fraction of samples to use to train each tree
+		max_samples = CSH.UniformFloatHyperparameter(
+			name='max_samples', lower=0.25, upper=1.0
+		)
+
 		# The maximum depth
 		max_depth = CSH.UniformIntegerHyperparameter(
 			name='max_depth', lower=8, upper=32
@@ -60,6 +65,7 @@ class RFCWorker(Worker):
 		cs.add_hyperparameters([
 			criterion,
 			max_features,
+			max_samples,
 			max_depth,
 			min_samples_split,
 			min_samples_leaf
@@ -75,6 +81,7 @@ class RFCWorker(Worker):
 			n_estimators=int(budget),
 			criterion=config['criterion'],
 			max_features=config['max_features'],
+			max_samples=config['max_samples'],
 			max_depth=config['max_depth'],
 			min_samples_split=config['min_samples_split'],
 			min_samples_leaf=config['min_samples_leaf']

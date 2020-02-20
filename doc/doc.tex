@@ -86,10 +86,13 @@
     \begin{itemize}
       \item The split criterion (Gini Impurity or Information Gain, see Appendix \ref{appendix:splitcriterions} for details)
       \item The fraction of features to use for each tree
+      \item The fraction of samples used to train each tree
       \item The maximum depth of each tree
       \item The minimum number of samples required to split an internal node
       \item The minimum number of samples to be at a leaf node
     \end{itemize}
+
+\clearpage
 
 \section{Hyperparameters Optimization}
   In this section it will be shown a formalization of the hyperparameters optimization task as a search problem.
@@ -118,6 +121,29 @@
   Note that we refer to budget as the computational cost of cross-validating a certain model.
   For example, for neural networks the budget can be the number of training epochs, while for random forests it can be the number of trees.
 
+  Algorithm \ref{algorithm:hyperband} shows an implementation of \texttt{Hyperband} as described now.
+  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points (for example using the uniform distribution) in the hyperparameters space and cross-validating them using only a fraction of the budget $R$.
+
+  After that we pick a fraction $1/\eta$ of the best models.
+  In this way we discard the models that didn't obtain a sufficiently good score saving up computational resources.
+
+  After that, we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$.
+  The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}.
+  The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$.
+  Furthermore, we execute the discussed algorithm multiple times using less and less initial random points and using an higher starting budget.
+  So, initially \textit{exploration} is preferred and \textit{exploitation} is performed later.
+
+  Even if \texttt{Hyperband} is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others.
+
+  In our case the model $L$ is a random forest.
+  As said before, the budget $R$ is the maximum number of trees that the final random forest will have.
+  The choice of the score $S$ is dependent from the task.
+  For simplicity the $F_{1}$ score is used (i.e. we want to maximize both \textit{Precision} and \textit{Recall}).
+  In this work the hyperparameters search space can be defined formally as:
+  \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split criterion}} \quad\times \overbrace{(0, 1]}^{\text{Features fraction}} \times \overbrace{(0, 1]}^{\text{Samples fraction}} \times\]
+  \[\times \overbrace{\mathbb{N}^{*}}^{\text{Max depth}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples to split}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples at leaf}}\]
+  For obvious reasons and for the hyperparameters optimization algorithm chosen, only a subset of this space can be explored.
+
   \begin{algorithm}
     \caption{Hyperband algorithm for hyperparameters optimization}
     \label{algorithm:hyperband}
@@ -139,53 +165,11 @@
     \end{algorithmic}
   \end{algorithm}
 
-  Algorithm \ref{algorithm:hyperband} shows an implementation of \texttt{Hyperband} as described now.
-  Given a budget $R$, \texttt{Hyperband} consists of random sampling some points (for example using the uniform distribution) in the hyperparameters space and cross-validating them using only a fraction of the budget $R$.
-  After that we pick a fraction $1/\eta$ of the best models.
-  In this way we discard the models that didn't obtain a sufficiently good score saving up computational resources.
-
-  After that, we strengthen the previous models using a larger portion of $R$ and iterate in this way until we use the complete budget $R$.
-  The procedure of consequently eliminating hyperparameters samples that don't obtain a good score is called \texttt{Successive Halving}.
-  The fraction of the budget to use for each iteration grows geometrically in respect of $\eta$.
-  Furthermore, we execute the discussed algorithm multiple times using less and less initial random points and using an higher starting budget.
-  So, initially \textit{exploration} is preferred and \textit{exploitation} is performed later.
-
-  Even if \texttt{Hyperband} is a simple algorithm, it is well scalable on multiple CPUs because we assume that every point in the hyperparameters space is independent from the others.
-
-  In our case the model $L$ is a random forest.
-  As said before, the budget $R$ is the maximum number of trees that the final random forest will have.
-  The choice of the score $S$ is dependent from the task.
-  For simplicity the $F_{1}$ score is used (i.e. we want to maximize both \textit{Precision} and \textit{Recall}).
-  In this work the hyperparameters search space can be defined formally as:
-  \[\Omega = \overbrace{\{gini, entropy\}}^{\text{Split criterion}} \quad\times \overbrace{(0, 1]}^{\text{Features fraction}} \times\]
-  \[\overbrace{\mathbb{N}^{*}}^{\text{Max depth}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples to split}} \times \overbrace{\mathbb{N}^{*}}^{\text{Min samples at leaf}}\]
-  For obvious reasons and for the hyperparameters optimization algorithm chosen, only a subset of this space can be explored.
-  Table \ref{table:hyperparameters} shows the subset of the hyperparameters search space used in this work.
-
-  \begin{table}[b]
-    \centering
-    \begin{tabular}{|c c|}
-      \hline
-      Hyperparameters & Values \\
-      \hline\hline
-      Split criterions & $\{gini, entropy\}$ \\
-      \hline
-      Features fraction & $[0.2, 0.8]$ \\
-      \hline
-      Maximum depth & $\{8,9,...,32\}$ \\
-      \hline
-      Minimum samples to split & $\{2,3,...,16\}$ \\
-      \hline
-      Minimum samples at a leaf & $\{1,2,...,8\}$ \\
-      \hline
-    \end{tabular}
-    \caption{The hyperparameters space subset used in this work.}
-    \label{table:hyperparameters}
-  \end{table}
+\clearpage
 
 \section{Conclusion}
   In this section we analyze the results of the model chosen comparing it to other models.
-  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Precision} and \textit{Recall} respect to other models.
+  As you can see from Table \ref{table:benchmark} the auto-tuned random forest used in this work obtained a way better \textit{Recall}.
 
   Furthermore, as you can see from Figure \ref{figure:confusion} the false positives count (the number of examples, which are predicted as exoplanets, but that are not) and the false negatives count (the number of actual exoplanets not being discovered), are pretty low.
 
@@ -193,9 +177,9 @@
   It means that predictions cannot be explained and the features importance cannot be evaluated easily.
   At contrary, random forests are said \textit{white-box} models.
   So, predictions can be explained deeply and it's possible to evaluate the importance of each feature used.
-
   In \textit{Artificial Intelligence} the explainability of a model is important because it guarantees transparency.
   Furthermore, in \textit{Machine Learning}, explainable models can reveal hidden knowledge about the data that isn't known at prior.
+  In the end we present Figure \ref{figure:importances} that shows the importance of the five most important features.
 
   \begin{table}
     \centering
@@ -203,18 +187,12 @@
       \hline
       Model & Precision & Recall & $F_{1} \downarrow$  \\
       \hline\hline
-      k-NN & 0.781 & \underline{0.948} & 0.855 \\
+      Random Forest & 0.940 & 0.916 & 0.927 \\
       \hline
-      SVC & 0.877 & 0.946 & 0.909 \\
-      \hline
-      2-layer NN & 0.917 & 0.932 & 0.924 \\
-      \hline
-      Random Forest & \underline{0.938} & 0.916 & \underline{0.926} \\
-      \hline
-      \textbf{Random Forest w/HB} & \textbf{0.937} & \textbf{0.943} & \textbf{0.940} \\
+      \textbf{Random Forest w/HB} & \textbf{0.934} & \textbf{0.935} & \textbf{0.935} \\
       \hline
     \end{tabular}
-    \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of several models for comparison. The models hyperparameters are the default ones implemented in \texttt{sklearn}. For \texttt{Hyperband} $R=216$ and $\eta=3$ are used.}
+    \caption{\textit{Precision}, \textit{Recall} and $F_{1}$ metrics of random forests with and without hyperparameters optimization (using the default ones in \texttt{scikit-learn}). For \texttt{Hyperband} $R=216$ and $\eta=3$ are used.}
     \label{table:benchmark}
   \end{table}
 
@@ -233,16 +211,15 @@
       \node[rotate=90] (h2) at (-0.5, 1) {\textbf{Predicted}};
         \node[rotate=90] (h21) at (-0.25, 1.5) {Positive};
         \node[rotate=90] (h22) at (-0.25, 0.5) {Negative};
-      \coordinate[label={\textbf{415}}] (TP) at (0.5, 1.33);
-      \coordinate[label={ 25}] (FN) at (0.5, 0.33);
-      \coordinate[label={ 28}] (FP) at (1.5, 1.33);
-      \coordinate[label={\textbf{704}}] (TN) at (1.5, 0.33);
+      \coordinate[label={\textbf{412}}] (TP) at (0.5, 1.33);
+      \coordinate[label={ 28}] (FN) at (0.5, 0.33);
+      \coordinate[label={ 29}] (FP) at (1.5, 1.33);
+      \coordinate[label={\textbf{703}}] (TN) at (1.5, 0.33);
     \end{tikzpicture}
     \caption{Confusion matrix over the test set.}
     \label{figure:confusion}
   \end{figure}
 
-  In the end we present Figure \ref{figure:importances} that shows the importance of the five most important features.
   In random forests the features importance are calculated by averaging the features importance in each decision tree.
   For a decision tree the features importance are calculated during the fit and are computed as the normalized total reduction of the criterion brought by each feature. 
 
@@ -263,16 +240,16 @@
         xlabel=Feature \#,
         symbolic x coords={21, 5, 3, 6, 1},
         bar width=16pt,
-        ymin=0.0, ymax=0.30,
-        ytick={0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30},
+        ymin=0.0, ymax=0.35,
+        ytick={0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35},
         yticklabel style={/pgf/number format/fixed, /pgf/number format/fixed zerofill}
       ]
         \addplot[style={fill=white}] coordinates {
-          (21, 0.2779)
-          (5, 0.2396)
-          (3, 0.0614)
-          (6, 0.0522)
-          (1, 0.0498)
+          (21, 0.296)
+          (5, 0.24)
+          (3, 0.069)
+          (6, 0.052)
+          (1, 0.050)
         };
       \end{axis}
     \end{tikzpicture}

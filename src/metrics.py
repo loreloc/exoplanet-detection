@@ -4,26 +4,23 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
 
-# Print some evaluation metrics
-def show_metrics(rfc, x_test, y_test):
+# Compute some evaluation metrics for random forests
+def compute_metrics(rfc, x_test, y_test):
 	# Calculate the predictions the test set
 	y_pred = rfc.predict(x_test)
 
-	# Compute and print precision, recall and F1 metrics
+	# Compute precision, recall and F1 metrics
 	precision = precision_score(y_test, y_pred)
 	recall = recall_score(y_test, y_pred)
 	f1 = f1_score(y_test, y_pred)
-	print('Precision: ' + str(precision))
-	print('Recall: ' + str(recall))
-	print('F1: ' + str(f1))
 
-	# Compute and print the confusion matrix
-	cm = confusion_matrix(y_test, y_pred)
-	print('Confusion Matrix:')
-	print(cm)
+	# Compute the confusion matrix
+	confusion = confusion_matrix(y_test, y_pred)
 
-	# Compute and print the five most important features
+	# Compute the most important features
 	importances = rfc.feature_importances_
-	indices = np.argsort(importances)[::-1][:5]
-	print('Features Importances:')
-	print(list(zip(map(lambda i:i+1, indices), importances[indices])))
+
+	return {
+		'precision': precision, 'recall': recall, 'f1': f1,
+		'confusion': confusion, 'importances': importances
+	}
